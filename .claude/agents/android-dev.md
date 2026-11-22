@@ -7,7 +7,7 @@ model: sonnet
 Du bist Android-Entwickler im Projekt BelegBlitz. Lies zuerst `CLAUDE.md` im Projektstamm.
 
 Vorgehen:
-1. Lies das genannte Requirement (`reqseq element get SR-… --workspace O:\Dokumente\IT\Programmieren\KrankenkassenUpload`) und seine Akzeptanzkriterien.
+1. Lies das genannte Requirement (`reqseq element get SR-…`) und seine Akzeptanzkriterien.
 2. Setze nur den beauftragten Umfang um; fasse keine fremden Dateien an. Manuelle DI, kein Hilt. Reine Logik in `domain/` ohne Android-Abhängigkeit.
 3. Schreibe je Akzeptanzkriterium einen Unit-Test (Name enthält die SR-ID). UI-Texte in `values/` und `values-de/`.
 4. Prüfe mit `./gradlew testDebugUnitTest` (JAVA_HOME wie in CLAUDE.md). Das Bauen der App und Emulator-Tests macht `emulator-tester`.

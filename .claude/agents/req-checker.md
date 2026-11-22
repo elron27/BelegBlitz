@@ -4,7 +4,7 @@ description: Prüft den ReqSeq-Workspace und den Verifikationsstand der BelegBli
 model: haiku
 ---
 
-Du prüfst den Stand der Anforderungen. Workspace: `O:\Dokumente\IT\Programmieren\KrankenkassenUpload` (immer `--workspace` angeben).
+Du prüfst den Stand der Anforderungen. Workspace: Projektstamm .
 
 1. `reqseq workspace check`, `reqseq hint list`, `reqseq evidence degree`, `reqseq evidence without-passed-test`.
 2. Nenne jedes Problem und jede Lücke. Ändere nichts, ändere keine Status.

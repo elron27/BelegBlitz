@@ -9,3 +9,4 @@ testdata/echt/
 .idea/
 *.reqseq-tmp
 .claude/settings.local.json
+.reqseq/local.yaml

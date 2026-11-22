@@ -1,0 +1,12 @@
+reqseq-workspace: 1
+name: BelegBlitz
+repositories:
+  - name: krankenkassenupload
+    url: "https://github.com/elron27/BelegBlitz"
+    main: true
+metamodel:
+  repository: krankenkassenupload
+  path: metamodel
+evidence:
+  - repository: krankenkassenupload
+    path: evidence

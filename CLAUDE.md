@@ -4,11 +4,11 @@ Android-App (Kotlin, Jetpack Compose) zur Ablage und Nachverfolgung von Arztrech
 (DAK, VKB). Alle Daten bleiben lokal auf dem Handy, keine Netzwerkberechtigung, keine Kassen-Schnittstellen.
 
 ## Anforderungen (ReqSeq)
-- Die Anforderungen liegen im Workspace `O:\Dokumente\IT\Programmieren\KrankenkassenUpload` (Needs `N-…`, System-Requirements `SR-…`,
-  alle SR sind **approved**). Lesen mit `reqseq element get SR-xxxxxx --workspace O:\Dokumente\IT\Programmieren\KrankenkassenUpload`.
+- Die Anforderungen liegen im ReqSeq-Workspace im Projektstamm (`need/`, `system-requirement/`, `metamodel/`, `evidence/`) (Needs `N-…`, System-Requirements `SR-…`,
+  alle SR sind **approved**). Lesen mit `reqseq element get SR-xxxxxx`.
 - Tests tragen die Kennung ihres Requirements bzw. Akzeptanzkriteriums im Namen; Code-Kommentare nennen die SR-ID.
 - Eine approvte Anforderung wird nie stillschweigend geändert: erst Stefan fragen.
-- Testdokumente: `O:\Dokumente\IT\Programmieren\KrankenkassenUpload\testdata\` (`echt/` mit geschwärzten Originalen, **nie committen**;
+- Testdokumente: `testdata/` (`echt/` mit geschwärzten Originalen, **nie committen**;
   `README.md` mit Erwartungswerten).
 
 ## Stufen
