@@ -74,6 +74,9 @@ dependencies {
     implementation("androidx.room:room-ktx:$room")
     ksp("androidx.room:room-compiler:$room")
 
+    // SR-a7d7afd41c64: lateinisches Texterkennungsmodell im APK gebündelt (kein Play-Services-Download, kein Netz)
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+
     testImplementation("junit:junit:4.13.2")
 }
 

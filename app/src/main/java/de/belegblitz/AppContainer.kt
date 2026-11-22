@@ -11,7 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import de.belegblitz.domain.KeinErkenner
+import de.belegblitz.data.ocr.MlKitTextLeser
+import de.belegblitz.data.ocr.OcrRechnungErkenner
 import de.belegblitz.domain.RechnungErkenner
 import java.io.File
 
@@ -20,8 +21,8 @@ class AppContainer(private val context: Context) {
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     val db: AppDatabase = Room.databaseBuilder(context, AppDatabase::class.java, "belegblitz.db").build()
 
-    /** SR-619cbca1ae6e: hier steckt Schritt 3 die OCR-Erkennung ein. */
-    var erkenner: RechnungErkenner = KeinErkenner
+    /** SR-a7d7afd41c64: lokale OCR (ML Kit, gebündelt) für den Erfassungsablauf. */
+    var erkenner: RechnungErkenner = OcrRechnungErkenner(MlKitTextLeser())
 
     /** SR-4eb0053fe161: per Teilen/Öffnen eingegangenes PDF, bis die Navigation es übernimmt. */
     val eingehendesPdf = MutableStateFlow<Uri?>(null)

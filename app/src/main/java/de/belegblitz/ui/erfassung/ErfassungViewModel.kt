@@ -105,6 +105,7 @@ class ErfassungViewModel(private val container: AppContainer, private val contex
     /** Erzeugt das PDF, legt die Rechnung an; `fertig(weitereSeiten)` meldet, ob gelöste Seiten übrig sind. */
     fun speichern(eingabe: RechnungEingabe, fertig: (weitereSeiten: Boolean) -> Unit) {
         val seiten = _state.value.seiten
+        val ocrText = _state.value.vorschlag?.ocrText // SR-84e9478a8eb5: OCR-Text mit der Rechnung speichern
         if (seiten.aktuell.isEmpty() || _state.value.beschaeftigt) return
         _state.update { it.copy(beschaeftigt = true) }
         viewModelScope.launch {
@@ -117,7 +118,7 @@ class ErfassungViewModel(private val container: AppContainer, private val contex
                         Rechnung(
                             personId = personId, praxis = eingabe.praxis, fachrichtung = eingabe.fachrichtung,
                             rechnungsdatum = eingabe.datum, betragCent = eingabe.betragCent, titel = eingabe.titel,
-                            pdfPfad = name, ocrText = null, erstellt = System.currentTimeMillis(),
+                            pdfPfad = name, ocrText = ocrText, erstellt = System.currentTimeMillis(),
                         ),
                     )
                     seiten.aktuell.forEach { File(it).delete() }

@@ -1,0 +1,47 @@
+MVZ Chiemgau lacht GmbH
+83022 Rosenheim
+Dres. med. dent. Mustermann & Beispiel,
+Rosenheim
+Telefon: 08031 000000
+praxis@example.invalid
+Frau
+Rechnung
+Rechnungsnummer: 0000001086
+Rechnungsdatum:
+28.07.2026
+Behandelte Person:
+Geburtsdatum:
+Sehr geehrte Frau Mustermann,
+für zahnärztliche Leistungen erlaube ich mir zu berechnen: 140,00 EUR
+Datum
+Region
+Nr.
+Leistungsbeschreibung / Auslagen
+Bgr.
+Faktor
+Anz.
+EUR
+28.07.26
+17-27,
+1040
+Professionelle Zahnreinigung
+1)
+3,1750
+28
+140,00
+37-47
+Zwischensumme Honorar:
+140,00
+Rechnungsbetrag:
+140,00
+umsatzsteuerfrei nach § 4 Nr. 14a UStG
+Bitte zahlen Sie den Rechnungsbetrag bis zum 27.08.2026.
+Bgr.
+Weitere Ausführungen soweit in Spalte Begründungen (Bgr.) Kennzeichen gesetzt wurde
+1)
+erhöhter Zeitaufwand wegen Zahnstein und Verfärbungen
+Raiffeisenbank eG
+Kontoinhaber: Zahnärzte MVZ Chiemgau lacht GmbH
+IBAN: DE00 0000 0000 0000 0000 00
+BIC: XXXXXXXXXXX
+Seite 1
