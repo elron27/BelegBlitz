@@ -47,6 +47,14 @@ object BescheidParser {
     )
     private val GESAMTSUMME = Regex("""Gesamtsumme|Gesamtauszahlung|Auszahlungsbetrag|Erstattungsbetrag""", RegexOption.IGNORE_CASE)
     private val CODE_ZEILE = Regex("""^(\d{4})(?:\s+(.*))?$""")
+    /** Auszahlung im Fließtext ("Den Betrag über 7,93 EUR haben wir ... überwiesen"): unabhängig von der Spaltenreihenfolge. */
+    private val AUSZAHLUNG_SATZ = Regex("""Betrag\s+über\s+(\d{1,3}(?:\.\d{3})*,\d{2})\s*(?:EUR|Euro|€)""", RegexOption.IGNORE_CASE)
+    /** Zeile, die nur aus einem Betrag besteht; ML Kit liest den Dezimalpunkt oft als "." statt ",". */
+    private val BETRAG_ZEILE = Regex("""^-?\d{1,3}(?:\.\d{3})*[,.]\d{2}(?:\s*(?:Euro|EUR|€))?$""")
+    private val RAUSCHEN = Regex(
+        """^(Erläuterungen und Hinweise.*|VER|SICHER|UNGS|VERSICHERUNGS|KAMMER|BAYERN|herunterladen\.|-\S+|Seite \d+ von \d+.*)$""",
+        RegexOption.IGNORE_CASE,
+    )
     private val ENDE_ERLAEUTERUNG = Regex("""^(Wussten Sie|https?://|Freundliche Gr|Mit freundlichen)""", RegexOption.IGNORE_CASE)
 
     /** [seiten] = Text je Seite in Reihenfolge (auch einseitige Briefe). */
@@ -131,12 +139,14 @@ object BescheidParser {
      */
     private fun tabelle(zeilen: List<String>, fachrichtung: String?): Pair<List<BescheidZeile>, Wert<Long>?> {
         val ende = zeilen.indexOfFirst { GESAMTSUMME.containsMatchIn(it) }.let { if (it < 0) zeilen.size else it }
-        val summe = if (ende < zeilen.size) {
+        val satz = AUSZAHLUNG_SATZ.find(OcrWerkzeug.zusammenfuegen(zeilen))?.let { OcrWerkzeug.cent(it.groupValues[1]) }
+        val summe = satz?.let { Wert(it) } ?: if (ende < zeilen.size) {
             (OcrWerkzeug.betraege(zeilen[ende]) + zeilen.drop(ende + 1).take(2).flatMap { OcrWerkzeug.betraege(it) })
                 .firstOrNull { it >= 0 }?.let { Wert(it) }
         } else null
 
-        val kopf = (0 until ende).filter { Regex("""^(Beleg|Rechnung)\s+vom\b""", RegexOption.IGNORE_CASE).containsMatchIn(zeilen[it]) }
+        // Spaltenweise gelesene Tabellen: "Beleg vom" kann auch hinter "Gesamtsumme" stehen
+        val kopf = zeilen.indices.filter { Regex("""^(Beleg|Rechnung)\s+vom\b""", RegexOption.IGNORE_CASE).containsMatchIn(zeilen[it]) }
         if (kopf.isEmpty()) {
             // Einzelnes Bezugsdatum irgendwo im Text (z. B. anderer Bescheid-Aufbau)
             val d = zeilen.flatMap { l -> BEZUG.findAll(l).flatMap { OcrWerkzeug.daten(it.groupValues[1]) } }.firstOrNull()
@@ -144,7 +154,7 @@ object BescheidParser {
             return listOf(BescheidZeile(d, erstattungCent = summe?.wert, fachrichtung = fachrichtung, sicher = false)) to summe
         }
         val teile = kopf.mapIndexed { n, start ->
-            val bis = kopf.getOrNull(n + 1) ?: ende
+            val bis = kopf.getOrNull(n + 1) ?: if (ende > start) ende else zeilen.size
             val datum = OcrWerkzeug.daten(zeilen[start]).firstOrNull()
             // Fachrichtung steht im Kopf direkt davor ("Zahnarztrechnung")
             val vorher = zeilen.getOrNull(start - 1).orEmpty()
@@ -154,16 +164,44 @@ object BescheidParser {
         val einzeln = teile.size == 1
         val zeilenListe = teile.map { (datum, inhalt, fr) ->
             val betraege = inhalt.flatMap { OcrWerkzeug.betraege(it) }
-            val rechnung = betraege.firstOrNull { it > 0 }
+            val (seitenRechnung, belegt) = if (einzeln) rechnungsbetragVonSeite(zeilen, summe?.wert) else (null to false)
+            val rechnung = betraege.firstOrNull { it > 0 } ?: seitenRechnung
             val kuerzungen = betraege.filter { it < 0 }
             val aus = if (einzeln) summe?.wert else if (rechnung == null || kuerzungen.isEmpty()) null
             else kuerzungen.sumOf { k -> (rechnung + k).coerceAtLeast(0) }
-            BescheidZeile(datum!!, rechnung, aus, fr, sicher = einzeln && aus != null)
+            BescheidZeile(datum!!, rechnung, aus, fr, sicher = einzeln && aus != null && (betraege.any { it > 0 } || belegt))
         }
         val passt = summe != null && zeilenListe.all { it.erstattungCent != null } &&
             zeilenListe.sumOf { it.erstattungCent!! } == summe.wert
-        val sicher = if (einzeln) zeilenListe.all { it.erstattungCent != null } else passt
+        val sicher = if (einzeln) zeilenListe.all { it.erstattungCent != null && it.sicher } else passt
         return zeilenListe.map { it.copy(sicher = sicher) } to summe
+    }
+
+    private fun betragTolerant(z: String): Long? =
+        if (BETRAG_ZEILE.matches(z)) OcrWerkzeug.cent(z.substringBefore(' ').replace(Regex("""\.(\d{2})$"""), ",$1")) else null
+
+    /**
+     * Rechnungsbetrag aus allen allein stehenden Beträgen der Seite (Spaltenreihenfolge unbekannt): Kandidat ist ein Betrag
+     * über der Auszahlung; "belegt" = es gibt die passende Kürzung (-(Betrag - Auszahlung)).
+     */
+    private fun rechnungsbetragVonSeite(zeilen: List<String>, auszahlung: Long?): Pair<Long?, Boolean> {
+        if (auszahlung == null) return null to false
+        val alle = zeilen.mapNotNull { betragTolerant(it) }
+        val kandidaten = alle.filter { it > auszahlung }.distinct()
+        val best = kandidaten.maxWithOrNull(
+            compareBy<Long>({ k -> if (alle.contains(-(k - auszahlung))) 1 else 0 }, { k -> alle.count { it == k } }, { it }),
+        ) ?: return null to false
+        return best to alle.contains(-(best - auszahlung))
+    }
+
+    /** Absätze einer Erläuterung: neuer Absatz, wenn die Zeile davor mit Punkt endet und die nächste groß beginnt. */
+    private fun absaetze(zeilen: List<String>): List<String> {
+        val res = mutableListOf<MutableList<String>>()
+        for (z in zeilen) {
+            val neu = res.isEmpty() || (res.last().last().endsWith(".") && z.first().isUpperCase())
+            if (neu) res += mutableListOf(z) else res.last() += z
+        }
+        return res.map { OcrWerkzeug.zusammenfuegen(it) }
     }
 
     /** Codes der Hinweis-Spalte (Datenseite) mit Erläuterung von beliebiger Seite; unerklärte Codes bleiben ohne Text. */
@@ -173,21 +211,29 @@ object BescheidParser {
             val nurMitText = i == datenSeite // auf der Datenseite stehen Codes auch allein in der Tabelle
             val z = OcrWerkzeug.zeilen(s)
             var aktuell: String? = null
+            val gestapelt = mutableListOf<String>() // Codes ohne eigenen Text direkt hintereinander (Spaltenleseweise)
             val puffer = mutableListOf<String>()
             fun abschliessen() {
-                aktuell?.let { c -> if (puffer.isNotEmpty()) erklaerungen.putIfAbsent(c, OcrWerkzeug.zusammenfuegen(puffer)) }
-                aktuell = null; puffer.clear()
+                val codes = gestapelt + listOfNotNull(aktuell)
+                if (puffer.isNotEmpty() && codes.isNotEmpty()) {
+                    val teile = if (codes.size == 1) listOf(OcrWerkzeug.zusammenfuegen(puffer)) else absaetze(puffer)
+                    codes.forEachIndexed { n, c ->
+                        val t = if (n == codes.size - 1) teile.drop(n).joinToString(" ") else teile.getOrNull(n)
+                        if (!t.isNullOrBlank()) erklaerungen.putIfAbsent(c, t)
+                    }
+                }
+                aktuell = null; gestapelt.clear(); puffer.clear()
             }
             for (l in z) {
                 val m = CODE_ZEILE.find(l)
                 when {
                     m != null && (m.groupValues[2].length >= 8 || (!nurMitText && m.groupValues[2].isEmpty())) -> {
-                        abschliessen()
+                        if (m.groupValues[2].isEmpty() && aktuell != null && puffer.isEmpty()) gestapelt += aktuell!! else abschliessen()
                         aktuell = m.groupValues[1]
                         if (m.groupValues[2].isNotEmpty()) puffer += m.groupValues[2]
                     }
                     aktuell != null && ENDE_ERLAEUTERUNG.containsMatchIn(l) -> abschliessen()
-                    aktuell != null -> puffer += l
+                    aktuell != null && !RAUSCHEN.matches(l) -> puffer += l
                 }
             }
             abschliessen()
@@ -198,7 +244,13 @@ object BescheidParser {
         val bis = daten.indexOfFirst { GESAMTSUMME.containsMatchIn(it) }.let { if (it < 0) daten.size else it }
         val codes = if (von >= 0 && von < bis) {
             daten.subList(von + 1, bis).mapNotNull { Regex("""(?:^|\s)(\d{4})$""").find(it)?.groupValues?.get(1) }
-        } else emptyList()
-        return codes.distinct().map { Hinweis(it, erklaerungen[it]) }
+        } else codesAusTabellenzeilen(daten, erklaerungen.keys)
+        // Reihenfolge wie in der Erläuterung (Spaltenleseweise kann die Tabellenzeilen vertauschen)
+        val reihenfolge = erklaerungen.keys.toList()
+        return codes.distinct().sortedBy { c -> reihenfolge.indexOf(c).let { if (it < 0) Int.MAX_VALUE else it } }.map { Hinweis(it, erklaerungen[it]) }
     }
+
+    /** Spaltenweise gelesen steht der Code am Ende der Tarif-Zeile ("ZVS 3 Plus 0240"); nur Codes, die auf anderer Seite erklärt werden. */
+    private fun codesAusTabellenzeilen(daten: List<String>, bekannt: Set<String>): List<String> =
+        daten.mapNotNull { Regex("""[A-Za-zÄÖÜäöüß]\s+(\d{4})$""").find(it)?.groupValues?.get(1) }.filter { it in bekannt }
 }

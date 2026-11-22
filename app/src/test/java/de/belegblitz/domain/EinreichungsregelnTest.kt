@@ -112,4 +112,10 @@ class EinreichungsregelnTest {
         assertEquals(1250L, e?.betragCent)
         assertEquals(LocalDate.of(2026, 8, 3), e?.datum)
     }
+
+    // SR-a6fc7a6cdbe1 Kriterium 2: mehrere Codes im selbst eingetragenen Hinweis bleiben vollständig erhalten
+    @Test fun `SR-a6fc7a6cdbe1 mehrere Hinweiscodes bleiben erhalten`() {
+        assertEquals("0240 0899", Einreichungsregeln.hinweisZusammenfuehren(null, " 0240 0899 "))
+        assertEquals("0240 0899\n0777",Einreichungsregeln.hinweisZusammenfuehren("0240 0899", "0777"))
+    }
 }
