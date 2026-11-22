@@ -33,6 +33,7 @@
     <string name="detached_hint">Diese Seiten gehören nicht zu dieser Rechnung. Nach dem Speichern bilden sie die nächste Rechnung.</string>
     <string name="detached_page">Gelöste Seite</string>
     <string name="merge_back">Wieder anfügen</string>
+    <string name="error_import_uri">Die geteilte Datei kann nicht gelesen werden. Bitte das PDF über Teilen oder die Dateiauswahl übernehmen.</string>
     <string name="error_page">Die Seite konnte nicht hinzugefügt werden.</string>
     <string name="error_save">Die Rechnung konnte nicht gespeichert werden.</string>
     <string name="review_title">Rechnung prüfen</string>

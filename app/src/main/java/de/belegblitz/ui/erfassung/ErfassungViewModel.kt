@@ -15,7 +15,10 @@ import de.belegblitz.data.PdfWerkzeug
 import de.belegblitz.data.Rechnung
 import de.belegblitz.domain.RechnungEingabe
 import de.belegblitz.domain.RechnungVorschlag
+import de.belegblitz.domain.Seitengruppierung
+import de.belegblitz.domain.SeitenMerkmal
 import de.belegblitz.domain.Seitenstapel
+import de.belegblitz.domain.nachGruppen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -108,10 +111,18 @@ class ErfassungViewModel(private val container: AppContainer, private val contex
 
     /** Fragt den Erkenner (derzeit Platzhalter) nach einem Vorschlag für die Felder. */
     fun vorschlagLaden() {
-        val pfade = _state.value.seiten.aktuell
         viewModelScope.launch {
             val v = try {
-                withContext(Dispatchers.IO) { container.erkenner.erkennen(pfade) }
+                withContext(Dispatchers.IO) {
+                    // SR-9d64ee2af904: Seiten verschiedener Rechnungen automatisch trennen
+                    val alle = _state.value.seiten.aktuell
+                    if (alle.size > 1) {
+                        val einzeln = alle.map { container.erkenner.erkennen(listOf(it)) }
+                        val gruppen = Seitengruppierung.gruppieren(einzeln.map { SeitenMerkmal(it.praxis, it.datum) })
+                        if (gruppen.size > 1) _state.update { it.copy(seiten = it.seiten.nachGruppen(gruppen)) }
+                    }
+                    container.erkenner.erkennen(_state.value.seiten.aktuell)
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Erkennung fehlgeschlagen", e)
                 RechnungVorschlag.LEER

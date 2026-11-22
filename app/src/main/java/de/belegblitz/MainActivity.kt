@@ -3,6 +3,10 @@ package de.belegblitz
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
+import de.belegblitz.domain.Eingang
+import de.belegblitz.domain.EingangErgebnis
 import androidx.core.content.IntentCompat
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,13 +30,18 @@ class MainActivity : ComponentActivity() {
         uebernehme(intent, (application as BelegBlitzApp).container)
     }
 
-    /** SR-4eb0053fe161: PDF aus Teilen (ACTION_SEND) oder Öffnen (ACTION_VIEW) an die Navigation weiterreichen. */
+    /** SR-4eb0053fe161: PDF aus Teilen (ACTION_SEND, EXTRA_STREAM oder ClipData) oder Öffnen (ACTION_VIEW) übernehmen. */
     private fun uebernehme(intent: Intent?, container: AppContainer) {
-        val uri: Uri? = when (intent?.action) {
-            Intent.ACTION_SEND -> IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
-            Intent.ACTION_VIEW -> intent.data
-            else -> null
+        if (intent == null) return
+        val stream = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
+        val clip = intent.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
+        when (val e = Eingang.auswerten(intent.action, intent.data?.toString(), stream?.toString(), clip?.toString(), intent.type)) {
+            is EingangErgebnis.Uebernehmen -> container.eingehendesPdf.value = Uri.parse(e.uri)
+            is EingangErgebnis.Abgelehnt -> {
+                Log.e("Eingang", "Datei nicht übernommen: ${e.grund} ${e.uri}")
+                Toast.makeText(this, R.string.error_import_uri, Toast.LENGTH_LONG).show()
+            }
+            EingangErgebnis.Ignorieren -> Unit
         }
-        if (uri != null) container.eingehendesPdf.value = uri
     }
 }

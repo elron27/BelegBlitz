@@ -33,6 +33,7 @@
     <string name="detached_hint">These pages are not part of this invoice. After saving, they form the next invoice.</string>
     <string name="detached_page">Detached page</string>
     <string name="merge_back">Add back</string>
+    <string name="error_import_uri">The shared file could not be read. Please open the PDF via Share or the file picker.</string>
     <string name="error_page">The page could not be added.</string>
     <string name="error_save">The invoice could not be saved.</string>
     <string name="review_title">Check invoice</string>
