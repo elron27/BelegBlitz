@@ -23,4 +23,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun vkbBeitragDao(): VkbBeitragDao
     abstract fun einreichungDao(): EinreichungDao
     abstract fun bescheidDao(): BescheidDao
+    abstract fun sicherungDao(): SicherungDao
 }

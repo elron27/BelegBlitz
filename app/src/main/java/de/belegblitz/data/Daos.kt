@@ -98,3 +98,27 @@ interface VkbBeitragDao {
     @Delete
     suspend fun loeschen(beitrag: VkbBeitrag)
 }
+/** SR-e334c167571f, SR-176f6f1f60df: Gesamtbestand lesen und ersetzen (Export/Wiederherstellung). */
+@Dao
+interface SicherungDao {
+    @Query("SELECT * FROM Person ORDER BY id") suspend fun personen(): List<Person>
+    @Query("SELECT * FROM Rechnung ORDER BY id") suspend fun rechnungen(): List<Rechnung>
+    @Query("SELECT * FROM Einreichung ORDER BY id") suspend fun einreichungen(): List<Einreichung>
+    @Query("SELECT * FROM Bescheid ORDER BY id") suspend fun bescheide(): List<Bescheid>
+    @Query("SELECT * FROM BescheidPosition ORDER BY id") suspend fun positionen(): List<BescheidPosition>
+    @Query("SELECT * FROM VkbBeitrag ORDER BY id") suspend fun beitraege(): List<VkbBeitrag>
+
+    @Query("DELETE FROM BescheidPosition") suspend fun loeschePositionen()
+    @Query("DELETE FROM Einreichung") suspend fun loescheEinreichungen()
+    @Query("DELETE FROM Bescheid") suspend fun loescheBescheide()
+    @Query("DELETE FROM Rechnung") suspend fun loescheRechnungen()
+    @Query("DELETE FROM VkbBeitrag") suspend fun loescheBeitraege()
+    @Query("DELETE FROM Person") suspend fun loeschePersonen()
+
+    @Insert suspend fun einfuegenPersonen(l: List<Person>)
+    @Insert suspend fun einfuegenRechnungen(l: List<Rechnung>)
+    @Insert suspend fun einfuegenEinreichungen(l: List<Einreichung>)
+    @Insert suspend fun einfuegenBescheide(l: List<Bescheid>)
+    @Insert suspend fun einfuegenPositionen(l: List<BescheidPosition>)
+    @Insert suspend fun einfuegenBeitraege(l: List<VkbBeitrag>)
+}

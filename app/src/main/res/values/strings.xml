@@ -134,4 +134,20 @@
     <string name="update_error_not_found">No latest.json found. Choose the folder “final”.</string>
     <string name="update_error_hash">Checksum does not match, the update was discarded.</string>
     <string name="update_error_permission">First allow installing apps from this source for BelegBlitz, then tap again.</string>
+
+    <!-- Stufe 2: Export und Wiederherstellung -->
+    <string name="backup_title">Export and restore</string>
+    <string name="backup_info">Export writes all documents into a folder you choose (Insurer/Year/Documents) plus one data file. Restore reads the same folder back, e.g. on a new phone.</string>
+    <string name="backup_export">Export</string>
+    <string name="backup_restore">Restore</string>
+    <string name="backup_running_export">Exporting … (%1$d of %2$d)</string>
+    <string name="backup_running_restore">Restoring … (%1$d of %2$d)</string>
+    <string name="backup_done_export">Export finished: %1$d invoices, %2$d notices, %3$d documents.</string>
+    <string name="backup_done_restore">Restore finished: %1$d invoices, %2$d notices, %3$d documents.</string>
+    <string name="backup_missing">%1$d documents were missing and could not be copied.</string>
+    <string name="backup_error_export">Export failed: %1$s</string>
+    <string name="backup_error_restore">Restore failed: %1$s</string>
+    <string name="restore_confirm_title">Replace existing data?</string>
+    <string name="restore_confirm_text">This app already contains data. Restoring replaces all invoices, notices and documents with the contents of the chosen folder.</string>
+    <string name="restore_confirm_yes">Replace</string>
 </resources>

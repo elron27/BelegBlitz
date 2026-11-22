@@ -17,6 +17,7 @@ import de.belegblitz.data.ocr.TextLeser
 import de.belegblitz.data.ocr.OcrRechnungErkenner
 import de.belegblitz.domain.RechnungErkenner
 import de.belegblitz.data.Einstellungen
+import de.belegblitz.data.export.SicherungsDienst
 import de.belegblitz.data.update.AppUpdater
 import de.belegblitz.domain.Sperre
 import java.io.File
@@ -38,6 +39,9 @@ class AppContainer(private val context: Context) {
 
     /** SR-c43e8d9ab0a8: true, solange die App gesperrt ist (beim Start, wenn die Sperre eingeschaltet ist). */
     val gesperrt = MutableStateFlow(Sperre.beimStartGesperrt(einstellungen.sperreAktiv.value))
+
+    /** SR-e334c167571f, SR-176f6f1f60df: Export und Wiederherstellung. */
+    val sicherung = SicherungsDienst(context, db, einstellungen) { pdfOrdner }
 
     /** App-Update aus dem gewählten Ordner (ohne Netzwerk). */
     val updater = AppUpdater(context)

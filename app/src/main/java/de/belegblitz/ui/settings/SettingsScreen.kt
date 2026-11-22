@@ -36,6 +36,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -70,6 +72,31 @@ fun SettingsScreen(vm: SettingsViewModel, onBack: () -> Unit) {
             updateResult = null
             updateInstallError = null
         }
+    }
+
+    // SR-e334c167571f / SR-176f6f1f60df: Export und Wiederherstellung per Ordnerauswahl
+    val stand by vm.sicherungsStand.collectAsStateWithLifecycle()
+    var wiederherstellenUri by remember { mutableStateOf<Uri?>(null) }
+    val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) vm.exportieren(uri)
+    }
+    val restorePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) scope.launch {
+            if (vm.bestandVorhanden()) wiederherstellenUri = uri else vm.wiederherstellen(uri)
+        }
+    }
+    wiederherstellenUri?.let { uri ->
+        AlertDialog(
+            onDismissRequest = { wiederherstellenUri = null },
+            title = { Text(stringResource(R.string.restore_confirm_title)) },
+            text = { Text(stringResource(R.string.restore_confirm_text)) },
+            confirmButton = {
+                TextButton(onClick = { wiederherstellenUri = null; vm.wiederherstellen(uri) }) {
+                    Text(stringResource(R.string.restore_confirm_yes))
+                }
+            },
+            dismissButton = { TextButton(onClick = { wiederherstellenUri = null }) { Text(stringResource(R.string.cancel)) } },
+        )
     }
 
     Scaffold(
@@ -162,6 +189,32 @@ fun SettingsScreen(vm: SettingsViewModel, onBack: () -> Unit) {
                     )
                 }
                 updateInstallError?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error) }
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            }
+            item {
+                Text(stringResource(R.string.backup_title), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.backup_info), style = MaterialTheme.typography.bodySmall)
+                val laeuft = stand is SettingsViewModel.SicherungsStand.Laeuft
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(enabled = !laeuft, onClick = { exportPicker.launch(null) }) { Text(stringResource(R.string.backup_export)) }
+                    Button(enabled = !laeuft, onClick = { restorePicker.launch(null) }) { Text(stringResource(R.string.backup_restore)) }
+                }
+                when (val st = stand) {
+                    SettingsViewModel.SicherungsStand.Leerlauf -> Unit
+                    is SettingsViewModel.SicherungsStand.Laeuft -> {
+                        Text(stringResource(if (st.export) R.string.backup_running_export else R.string.backup_running_restore, st.erledigt, st.gesamt))
+                        LinearProgressIndicator(progress = { st.erledigt.toFloat() / st.gesamt.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
+                    }
+                    is SettingsViewModel.SicherungsStand.Fertig -> {
+                        val e = st.ergebnis
+                        Text(stringResource(if (st.export) R.string.backup_done_export else R.string.backup_done_restore, e.rechnungen, e.bescheide, e.dokumente))
+                        if (e.fehlendeDokumente > 0) Text(stringResource(R.string.backup_missing, e.fehlendeDokumente), color = MaterialTheme.colorScheme.error)
+                    }
+                    is SettingsViewModel.SicherungsStand.Fehler -> Text(
+                        stringResource(if (st.export) R.string.backup_error_export else R.string.backup_error_restore, st.meldung ?: "-"),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
             }
             item {
