@@ -11,6 +11,9 @@ interface PersonDao {
     @Query("SELECT COUNT(*) FROM Person")
     suspend fun anzahl(): Int
 
+    @Query("SELECT id FROM Person ORDER BY id LIMIT 1")
+    suspend fun ersteId(): Long?
+
     @Insert
     suspend fun einfuegen(person: Person): Long
 }
@@ -19,6 +22,9 @@ interface PersonDao {
 interface RechnungDao {
     @Query("SELECT * FROM Rechnung ORDER BY rechnungsdatum DESC, id DESC")
     fun alle(): Flow<List<Rechnung>>
+
+    @Query("SELECT * FROM Rechnung WHERE id = :id")
+    fun finde(id: Long): Flow<Rechnung?>
 
     @Insert
     suspend fun einfuegen(rechnung: Rechnung): Long
