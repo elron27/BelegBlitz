@@ -28,7 +28,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.content.Intent
+import android.net.Uri
+import android.provider.DocumentsContract
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+import androidx.compose.material3.Switch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import de.belegblitz.BuildConfig
 import de.belegblitz.R
+import de.belegblitz.data.update.AppUpdater
+import de.belegblitz.domain.Sperre
+import kotlinx.coroutines.launch
 import de.belegblitz.domain.Geld
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,6 +53,24 @@ fun SettingsScreen(vm: SettingsViewModel, onBack: () -> Unit) {
     var betrag by remember { mutableStateOf("") }
     var datum by remember { mutableStateOf("") }
     var fehler by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val sperreAktiv by vm.sperreAktiv.collectAsStateWithLifecycle()
+    var sperreFehler by remember { mutableStateOf(false) }
+    var wochenText by remember { mutableStateOf(vm.wartezeitWochen.value.toString()) }
+    val updateOrdnerText by vm.updateOrdner.collectAsStateWithLifecycle()
+    val updateOrdner = updateOrdnerText?.takeIf { it.isNotEmpty() }?.let { Uri.parse(it) }
+    var updateResult by remember { mutableStateOf<AppUpdater.CheckResult?>(null) }
+    var updateInstallError by remember { mutableStateOf<Int?>(null) }
+    var updateBusy by remember { mutableStateOf(false) }
+    val updatePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            vm.setUpdateOrdner(uri.toString())
+            updateResult = null
+            updateInstallError = null
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -51,6 +84,86 @@ fun SettingsScreen(vm: SettingsViewModel, onBack: () -> Unit) {
             Modifier.padding(padding).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            item {
+                // SR-c43e8d9ab0a8: Sperre ein-/ausschalten
+                Text(stringResource(R.string.lock_title), style = MaterialTheme.typography.titleMedium)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.lock_switch), modifier = Modifier.weight(1f))
+                    Switch(checked = sperreAktiv, onCheckedChange = { wunsch ->
+                        val moeglich = BiometricManager.from(context).canAuthenticate(BIOMETRIC_STRONG or DEVICE_CREDENTIAL) ==
+                            BiometricManager.BIOMETRIC_SUCCESS
+                        if (!wunsch) { vm.setSperreAktiv(false); sperreFehler = false }
+                        else if (Sperre.einschaltenMoeglich(moeglich)) { vm.setSperreAktiv(true); sperreFehler = false }
+                        else sperreFehler = true
+                    })
+                }
+                if (sperreFehler) Text(stringResource(R.string.lock_unavailable), color = MaterialTheme.colorScheme.error)
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            }
+            item {
+                // SR-aada699191a1: Wartezeit der Erinnerung
+                Text(stringResource(R.string.reminder_title), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.reminder_info), style = MaterialTheme.typography.bodySmall)
+                OutlinedTextField(
+                    value = wochenText,
+                    onValueChange = { neu ->
+                        wochenText = neu.filter { it.isDigit() }.take(2)
+                        wochenText.toIntOrNull()?.let { vm.setWartezeitWochen(it) }
+                    },
+                    label = { Text(stringResource(R.string.reminder_weeks)) }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            }
+            item {
+                // App-Update aus dem gewählten Ordner (ohne Netzwerk)
+                Text(stringResource(R.string.settings_update), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.settings_update_info), style = MaterialTheme.typography.bodySmall)
+                Text(
+                    updateOrdner?.let { Uri.decode(DocumentsContract.getTreeDocumentId(it)) }
+                        ?: stringResource(R.string.settings_update_none),
+                )
+                TextButton(onClick = { updatePicker.launch(null) }) { Text(stringResource(R.string.settings_update_choose)) }
+                Button(
+                    enabled = !updateBusy && updateOrdner != null,
+                    onClick = {
+                        scope.launch {
+                            updateBusy = true
+                            updateInstallError = null
+                            updateResult = vm.updater.check(updateOrdner)
+                            updateBusy = false
+                        }
+                    },
+                ) { Text(stringResource(R.string.settings_update_check)) }
+                when (val r = updateResult) {
+                    null -> Unit
+                    is AppUpdater.CheckResult.UpToDate ->
+                        Text(stringResource(R.string.update_up_to_date, BuildConfig.VERSION_NAME))
+                    is AppUpdater.CheckResult.Available -> {
+                        Text(stringResource(R.string.update_available, r.release.versionName))
+                        Button(
+                            enabled = !updateBusy,
+                            onClick = {
+                                scope.launch {
+                                    updateBusy = true
+                                    updateInstallError = vm.updater.download(r.release, r.folder).fold(
+                                        onSuccess = { file -> vm.updater.install(file) },
+                                        onFailure = { e -> (e as? AppUpdater.UpdateException)?.messageRes ?: R.string.update_error_read },
+                                    )
+                                    updateBusy = false
+                                }
+                            },
+                        ) { Text(stringResource(R.string.update_install)) }
+                    }
+                    is AppUpdater.CheckResult.Failed -> Text(
+                        stringResource(r.message) + (r.detail?.let { " ($it)" } ?: ""),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                updateInstallError?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error) }
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            }
             item {
                 Text(stringResource(R.string.vkb_title), style = MaterialTheme.typography.titleMedium)
                 Text(stringResource(R.string.vkb_hint), style = MaterialTheme.typography.bodySmall)

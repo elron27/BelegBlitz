@@ -102,4 +102,36 @@
     <string name="search_hint">Search in invoice and notice text</string>
     <string name="search_none">No results.</string>
     <string name="search_notice">Notice</string>
+
+    <!-- Stufe 2: App-Sperre, Erinnerung, App-Update -->
+    <string name="lock_title">App lock</string>
+    <string name="lock_switch">Lock the app (fingerprint or device lock)</string>
+    <string name="lock_unavailable">Set up a fingerprint or screen lock on this phone first.</string>
+    <string name="lock_prompt_title">Unlock BelegBlitz</string>
+    <string name="lock_prompt_subtitle">Confirm with your fingerprint or device lock</string>
+    <string name="lock_screen_text">BelegBlitz is locked.</string>
+    <string name="lock_unlock">Unlock</string>
+    <string name="reminder_title">Reminder</string>
+    <string name="reminder_info">Remind me about submissions that still have no notice after this many weeks. There is no reminder for deadlines.</string>
+    <string name="reminder_weeks">Waiting time (weeks)</string>
+    <string name="reminder_channel">Reminders</string>
+    <string name="reminder_notification_title">Notice still missing</string>
+    <plurals name="reminder_notification_text">
+        <item quantity="one">%d submission has no notice yet.</item>
+        <item quantity="other">%d submissions have no notice yet.</item>
+    </plurals>
+    <string name="settings_update">App update</string>
+    <string name="settings_update_info">The new version lives in a folder, for example synced from the NAS to this phone: a latest.json and the APK (usually the folder “final”). Choose that folder, then tap “Check for updates”. Your data is kept.</string>
+    <string name="settings_update_choose">Choose update folder</string>
+    <string name="settings_update_none">No folder chosen</string>
+    <string name="settings_update_check">Check for updates</string>
+    <string name="update_up_to_date">Up to date (version %s)</string>
+    <string name="update_available">New version %s available.</string>
+    <string name="update_install">Download and install</string>
+    <string name="update_error_no_folder">No folder chosen yet.</string>
+    <string name="update_error_read">The folder could not be read.</string>
+    <string name="update_error_manifest">latest.json in the update folder is invalid.</string>
+    <string name="update_error_not_found">No latest.json found. Choose the folder “final”.</string>
+    <string name="update_error_hash">Checksum does not match, the update was discarded.</string>
+    <string name="update_error_permission">First allow installing apps from this source for BelegBlitz, then tap again.</string>
 </resources>

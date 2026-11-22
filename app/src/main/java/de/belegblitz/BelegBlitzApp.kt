@@ -9,5 +9,7 @@ class BelegBlitzApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        // SR-aada699191a1: tägliche Prüfung auf Einreichungen ohne Bescheid
+        de.belegblitz.data.ErinnerungsWorker.planen(this)
     }
 }

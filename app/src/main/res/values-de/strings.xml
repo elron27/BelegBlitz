@@ -102,4 +102,36 @@
     <string name="search_hint">Suche in Rechnungs- und Bescheidtext</string>
     <string name="search_none">Keine Treffer.</string>
     <string name="search_notice">Bescheid</string>
+
+    <!-- Stufe 2: App-Sperre, Erinnerung, App-Update -->
+    <string name="lock_title">App-Sperre</string>
+    <string name="lock_switch">App sperren (Fingerabdruck oder Gerätesperre)</string>
+    <string name="lock_unavailable">Richte zuerst einen Fingerabdruck oder eine Bildschirmsperre auf dem Handy ein.</string>
+    <string name="lock_prompt_title">BelegBlitz entsperren</string>
+    <string name="lock_prompt_subtitle">Mit Fingerabdruck oder Gerätesperre bestätigen</string>
+    <string name="lock_screen_text">BelegBlitz ist gesperrt.</string>
+    <string name="lock_unlock">Entsperren</string>
+    <string name="reminder_title">Erinnerung</string>
+    <string name="reminder_info">Erinnere mich an Einreichungen, zu denen nach so vielen Wochen noch kein Bescheid vorliegt. Eine Erinnerung an Fristen gibt es nicht.</string>
+    <string name="reminder_weeks">Wartezeit (Wochen)</string>
+    <string name="reminder_channel">Erinnerungen</string>
+    <string name="reminder_notification_title">Bescheid fehlt noch</string>
+    <plurals name="reminder_notification_text">
+        <item quantity="one">%d Einreichung hat noch keinen Bescheid.</item>
+        <item quantity="other">%d Einreichungen haben noch keinen Bescheid.</item>
+    </plurals>
+    <string name="settings_update">App-Update</string>
+    <string name="settings_update_info">Die neue Version liegt in einem Ordner, z. B. vom NAS aufs Handy synchronisiert: eine latest.json und die APK (meist der Ordner „final“). Diesen Ordner wählen und auf „Auf Updates prüfen“ tippen. Daten bleiben erhalten.</string>
+    <string name="settings_update_choose">Update-Ordner wählen</string>
+    <string name="settings_update_none">Kein Ordner gewählt</string>
+    <string name="settings_update_check">Auf Updates prüfen</string>
+    <string name="update_up_to_date">Aktuell (Version %s)</string>
+    <string name="update_available">Neue Version %s verfügbar.</string>
+    <string name="update_install">Herunterladen und installieren</string>
+    <string name="update_error_no_folder">Noch kein Ordner gewählt.</string>
+    <string name="update_error_read">Der Ordner konnte nicht gelesen werden.</string>
+    <string name="update_error_manifest">latest.json im Update-Ordner ist ungültig.</string>
+    <string name="update_error_not_found">Keine latest.json gefunden. Den Ordner „final“ wählen.</string>
+    <string name="update_error_hash">Die Prüfsumme passt nicht, das Update wurde verworfen.</string>
+    <string name="update_error_permission">Erlaube zuerst „Apps aus dieser Quelle installieren“ für BelegBlitz und tippe dann erneut.</string>
 </resources>

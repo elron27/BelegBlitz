@@ -16,6 +16,9 @@ import de.belegblitz.data.ocr.MlKitTextLeser
 import de.belegblitz.data.ocr.TextLeser
 import de.belegblitz.data.ocr.OcrRechnungErkenner
 import de.belegblitz.domain.RechnungErkenner
+import de.belegblitz.data.Einstellungen
+import de.belegblitz.data.update.AppUpdater
+import de.belegblitz.domain.Sperre
 import java.io.File
 
 /** Manuelle Abhängigkeitsverwaltung (kein Hilt). */
@@ -29,6 +32,15 @@ class AppContainer(private val context: Context) {
 
     /** SR-7d1f8913431f, SR-3273b2e9382d: Einreichungen und Bescheide schreiben. */
     val speicher = EinreichungSpeicher(db)
+
+    /** Stufe 2: Sperre, Wartezeit und Update-Ordner. */
+    val einstellungen = Einstellungen(context)
+
+    /** SR-c43e8d9ab0a8: true, solange die App gesperrt ist (beim Start, wenn die Sperre eingeschaltet ist). */
+    val gesperrt = MutableStateFlow(Sperre.beimStartGesperrt(einstellungen.sperreAktiv.value))
+
+    /** App-Update aus dem gewählten Ordner (ohne Netzwerk). */
+    val updater = AppUpdater(context)
 
     /** SR-4eb0053fe161: per Teilen/Öffnen eingegangenes PDF, bis die Navigation es übernimmt. */
     val eingehendesPdf = MutableStateFlow<Uri?>(null)

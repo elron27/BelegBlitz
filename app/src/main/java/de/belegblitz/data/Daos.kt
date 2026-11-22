@@ -44,6 +44,10 @@ interface EinreichungDao {
     @Query("SELECT * FROM Einreichung")
     fun alle(): Flow<List<Einreichung>>
 
+    /** SR-aada699191a1: einmalige Abfrage für die tägliche Erinnerung. */
+    @Query("SELECT * FROM Einreichung")
+    suspend fun alleEinmal(): List<Einreichung>
+
     @Query("SELECT * FROM Einreichung WHERE rechnungId = :rechnungId")
     fun jeRechnung(rechnungId: Long): Flow<List<Einreichung>>
 

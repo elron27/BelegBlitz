@@ -21,6 +21,16 @@ val DatumFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.uuuu").w
 class SettingsViewModel(container: AppContainer) : ViewModel() {
     private val dao = container.db.vkbBeitragDao()
 
+    private val einstellungen = container.einstellungen
+    val updater = container.updater
+    val sperreAktiv = einstellungen.sperreAktiv
+    val wartezeitWochen = einstellungen.wartezeitWochen
+    val updateOrdner = einstellungen.updateOrdner
+
+    fun setSperreAktiv(wert: Boolean) = einstellungen.setSperreAktiv(wert)
+    fun setWartezeitWochen(wochen: Int) = einstellungen.setWartezeitWochen(wochen)
+    fun setUpdateOrdner(uri: String) = einstellungen.setUpdateOrdner(uri)
+
     val beitraege: StateFlow<List<VkbBeitrag>> =
         dao.alle().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
