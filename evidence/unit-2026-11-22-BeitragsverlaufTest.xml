@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="de.belegblitz.domain.BeitragsverlaufTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-22T11:36:59.128Z" hostname="DESKTOP-C9LQ1A1" time="0.001">
+  <properties/>
+  <testcase name="SR-984a2c74ebc1 AC2 vor dem ersten Eintrag ist der Beitrag unbekannt" classname="de.belegblitz.domain.BeitragsverlaufTest" time="0.0"><properties><property name="reqseq:element" value="f49c9e9e-2085-4cbc-89d8-984a2c74ebc1"/><property name="reqseq:version" value="n2:7ef5e3adbc164042"/><property name="reqseq:item" value="debug 2d6f2b8"/><property name="reqseq:date" value="2026-11-22T11:36:59.128Z"/></properties></testcase>
+  <testcase name="SR-984a2c74ebc1 AC2 mehrere Eintraege ergeben Beitrag je Monat" classname="de.belegblitz.domain.BeitragsverlaufTest" time="0.0"><properties><property name="reqseq:element" value="f49c9e9e-2085-4cbc-89d8-984a2c74ebc1"/><property name="reqseq:version" value="n2:7ef5e3adbc164042"/><property name="reqseq:item" value="debug 2d6f2b8"/><property name="reqseq:date" value="2026-11-22T11:36:59.128Z"/></properties></testcase>
+  <testcase name="SR-984a2c74ebc1 AC1 Eintrag mit Betrag und Gueltig-ab-Datum liefert den Beitrag" classname="de.belegblitz.domain.BeitragsverlaufTest" time="0.001"><properties><property name="reqseq:element" value="f49c9e9e-2085-4cbc-89d8-984a2c74ebc1"/><property name="reqseq:version" value="n2:7ef5e3adbc164042"/><property name="reqseq:item" value="debug 2d6f2b8"/><property name="reqseq:date" value="2026-11-22T11:36:59.128Z"/></properties></testcase>
+  <testcase name="SR-984a2c74ebc1 Eintrag mitten im Monat gilt fuer diesen Monat" classname="de.belegblitz.domain.BeitragsverlaufTest" time="0.0"><properties><property name="reqseq:element" value="f49c9e9e-2085-4cbc-89d8-984a2c74ebc1"/><property name="reqseq:version" value="n2:7ef5e3adbc164042"/><property name="reqseq:item" value="debug 2d6f2b8"/><property name="reqseq:date" value="2026-11-22T11:36:59.128Z"/></properties></testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
