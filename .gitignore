@@ -1,0 +1,11 @@
+.gradle/
+.kotlin/
+build/
+local.properties
+*.apk
+*.aab
+signing/
+testdata/echt/
+.idea/
+*.reqseq-tmp
+.claude/settings.local.json
