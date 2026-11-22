@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -26,8 +27,49 @@ interface RechnungDao {
     @Query("SELECT * FROM Rechnung WHERE id = :id")
     fun finde(id: Long): Flow<Rechnung?>
 
+    @Query("SELECT * FROM Rechnung ORDER BY rechnungsdatum DESC, id DESC")
+    suspend fun alleEinmal(): List<Rechnung>
+
     @Insert
     suspend fun einfuegen(rechnung: Rechnung): Long
+}
+
+/** SR-7d1f8913431f: Einreichungen je Rechnung und Kasse. */
+@Dao
+interface EinreichungDao {
+    @Query("SELECT * FROM Einreichung WHERE rechnungId = :rechnungId")
+    fun jeRechnung(rechnungId: Long): Flow<List<Einreichung>>
+
+    @Query("SELECT * FROM Einreichung WHERE rechnungId = :rechnungId AND kasse = :kasse LIMIT 1")
+    suspend fun finde(rechnungId: Long, kasse: de.belegblitz.domain.Kasse): Einreichung?
+
+    @Query("SELECT * FROM Einreichung WHERE id = :id")
+    suspend fun findeId(id: Long): Einreichung?
+
+    @Insert
+    suspend fun einfuegen(einreichung: Einreichung): Long
+
+    @Update
+    suspend fun aktualisieren(einreichung: Einreichung)
+}
+
+/** SR-3273b2e9382d, SR-93cb9591c1a1: Bescheide und ihre Positionen. */
+@Dao
+interface BescheidDao {
+    @Insert
+    suspend fun einfuegen(bescheid: Bescheid): Long
+
+    @Insert
+    suspend fun positionEinfuegen(position: BescheidPosition): Long
+
+    @Query("SELECT * FROM BescheidPosition WHERE einreichungId = :einreichungId")
+    suspend fun positionen(einreichungId: Long): List<BescheidPosition>
+
+    @Query("SELECT * FROM BescheidPosition WHERE rechnungId = :rechnungId")
+    fun positionenJeRechnung(rechnungId: Long): Flow<List<BescheidPosition>>
+
+    @Query("SELECT * FROM Bescheid")
+    fun alle(): Flow<List<Bescheid>>
 }
 
 @Dao

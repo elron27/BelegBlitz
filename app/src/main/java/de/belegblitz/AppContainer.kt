@@ -11,7 +11,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import de.belegblitz.data.EinreichungSpeicher
 import de.belegblitz.data.ocr.MlKitTextLeser
+import de.belegblitz.data.ocr.TextLeser
 import de.belegblitz.data.ocr.OcrRechnungErkenner
 import de.belegblitz.domain.RechnungErkenner
 import java.io.File
@@ -22,7 +24,11 @@ class AppContainer(private val context: Context) {
     val db: AppDatabase = Room.databaseBuilder(context, AppDatabase::class.java, "belegblitz.db").build()
 
     /** SR-a7d7afd41c64: lokale OCR (ML Kit, gebündelt) für den Erfassungsablauf. */
-    var erkenner: RechnungErkenner = OcrRechnungErkenner(MlKitTextLeser())
+    var textLeser: TextLeser = MlKitTextLeser()
+    var erkenner: RechnungErkenner = OcrRechnungErkenner(textLeser)
+
+    /** SR-7d1f8913431f, SR-3273b2e9382d: Einreichungen und Bescheide schreiben. */
+    val speicher = EinreichungSpeicher(db)
 
     /** SR-4eb0053fe161: per Teilen/Öffnen eingegangenes PDF, bis die Navigation es übernimmt. */
     val eingehendesPdf = MutableStateFlow<Uri?>(null)

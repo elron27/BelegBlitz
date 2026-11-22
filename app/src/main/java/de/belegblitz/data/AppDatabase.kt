@@ -21,4 +21,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun personDao(): PersonDao
     abstract fun rechnungDao(): RechnungDao
     abstract fun vkbBeitragDao(): VkbBeitragDao
+    abstract fun einreichungDao(): EinreichungDao
+    abstract fun bescheidDao(): BescheidDao
 }

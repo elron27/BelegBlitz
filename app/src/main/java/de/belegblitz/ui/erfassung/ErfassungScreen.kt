@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -99,7 +100,7 @@ fun ErfassungScreen(vm: ErfassungViewModel, onWeiter: () -> Unit, onAbbrechen: (
                         modifier = Modifier.weight(1f),
                     ) { Text(stringResource(R.string.take_photo)) }
                     OutlinedButton(
-                        onClick = { dateiAuswahl.launch(arrayOf("application/pdf")) },
+                        onClick = { dateiAuswahl.launch(arrayOf("application/pdf", "image/*")) },
                         enabled = !state.beschaeftigt,
                         modifier = Modifier.weight(1f),
                     ) { Text(stringResource(R.string.import_pdf)) }
@@ -116,6 +117,19 @@ fun ErfassungScreen(vm: ErfassungViewModel, onWeiter: () -> Unit, onAbbrechen: (
             Modifier.padding(padding).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            // SR-3273b2e9382d: Rechnung oder Bescheid
+            item {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = state.art == BelegArt.RECHNUNG, onClick = { vm.artWaehlen(BelegArt.RECHNUNG) },
+                        label = { Text(stringResource(R.string.kind_invoice)) },
+                    )
+                    FilterChip(
+                        selected = state.art == BelegArt.BESCHEID, onClick = { vm.artWaehlen(BelegArt.BESCHEID) },
+                        label = { Text(stringResource(R.string.kind_notice)) },
+                    )
+                }
+            }
             if (state.beschaeftigt) item { Text(stringResource(R.string.working)) }
             if (seiten.aktuell.isEmpty()) item {
                 Text(stringResource(R.string.capture_hint), style = MaterialTheme.typography.bodyMedium)

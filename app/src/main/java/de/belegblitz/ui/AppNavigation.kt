@@ -12,6 +12,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import de.belegblitz.ui.detail.InvoiceDetailScreen
+import de.belegblitz.ui.erfassung.BelegArt
+import de.belegblitz.ui.erfassung.BescheidPruefenScreen
+import de.belegblitz.ui.erfassung.BescheidViewModel
 import de.belegblitz.ui.erfassung.ErfassungScreen
 import de.belegblitz.ui.erfassung.ErfassungViewModel
 import de.belegblitz.ui.erfassung.PruefenScreen
@@ -29,6 +32,7 @@ object Routes {
     const val EINSTELLUNGEN = "einstellungen"
     const val ERFASSUNG = "erfassung"
     const val PRUEFEN = "pruefen"
+    const val BESCHEID = "bescheid"
     const val DETAIL = "rechnung/{id}"
 }
 
@@ -38,6 +42,9 @@ fun AppNavigation(container: AppContainer) {
     // Gemeinsamer Zustand von Erfassen und Prüfen (an die Activity gebunden)
     val erfassung: ErfassungViewModel =
         viewModel(factory = ErfassungViewModel.factory(container, LocalContext.current))
+
+    val bescheid: BescheidViewModel =
+        viewModel(factory = BescheidViewModel.factory(container, LocalContext.current))
 
     // SR-4eb0053fe161: per Teilen/Öffnen eingegangenes PDF in denselben Ablauf übernehmen
     val eingang by container.eingehendesPdf.collectAsStateWithLifecycle()
@@ -70,7 +77,10 @@ fun AppNavigation(container: AppContainer) {
         composable(Routes.ERFASSUNG) {
             ErfassungScreen(
                 erfassung,
-                onWeiter = { nav.navigate(Routes.PRUEFEN) },
+                onWeiter = {
+                    // SR-3273b2e9382d: Bescheid oder Rechnung
+                    if (erfassung.state.value.art == BelegArt.BESCHEID) nav.navigate(Routes.BESCHEID) else nav.navigate(Routes.PRUEFEN)
+                },
                 onAbbrechen = { nav.popBackStack(Routes.LISTE, false) },
             )
         }
@@ -82,6 +92,13 @@ fun AppNavigation(container: AppContainer) {
                 onGespeichert = { weitere ->
                     if (weitere) nav.popBackStack(Routes.ERFASSUNG, false) else nav.popBackStack(Routes.LISTE, false)
                 },
+            )
+        }
+        composable(Routes.BESCHEID) {
+            BescheidPruefenScreen(
+                erfassung, bescheid,
+                onZurueck = { nav.popBackStack() },
+                onGespeichert = { nav.popBackStack(Routes.LISTE, false) },
             )
         }
         composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) {

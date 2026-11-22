@@ -75,6 +75,7 @@ fun InvoiceDetailScreen(container: AppContainer, id: Long, onBack: () -> Unit) {
                     }
                 }
             }
+            rechnung?.let { r -> item { EinreichungenAbschnitt(container, r) } }
             val bilder = seiten
             if (bilder != null && bilder.isEmpty()) item { Text(stringResource(R.string.pdf_error)) }
             itemsIndexed(bilder.orEmpty()) { _, bmp ->

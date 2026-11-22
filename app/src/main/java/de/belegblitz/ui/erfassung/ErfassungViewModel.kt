@@ -25,7 +25,11 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.UUID
 
+/** SR-3273b2e9382d: Der Nutzer wählt, ob die erfassten Seiten eine Rechnung oder ein Bescheid sind. */
+enum class BelegArt { RECHNUNG, BESCHEID }
+
 data class ErfassungState(
+    val art: BelegArt = BelegArt.RECHNUNG,
     val seiten: Seitenstapel<String> = Seitenstapel(),
     val beschaeftigt: Boolean = false,
     /** String-Ressource der letzten Fehlermeldung. */
@@ -57,6 +61,15 @@ class ErfassungViewModel(private val container: AppContainer, private val contex
     /** SR-4eb0053fe161: PDF (Teilen, Öffnen oder Dateiauswahl) wird in Seitenbilder zerlegt wie Fotos. */
     fun pdfImportieren(uri: Uri) {
         arbeiten {
+            // SR-3273b2e9382d: Screenshots/Bilder (auch per Teilen) wie Fotos übernehmen
+            if (context.contentResolver.getType(uri)?.startsWith("image/") == true) {
+                val bild = File(container.entwurfOrdner, "bild_${UUID.randomUUID()}.jpg")
+                val eingang = context.contentResolver.openInputStream(uri) ?: error("Datei nicht lesbar: $uri")
+                eingang.use { i -> bild.outputStream().use { o -> i.copyTo(o) } }
+                PdfWerkzeug.fotoAufbereiten(bild)
+                _state.update { it.copy(seiten = it.seiten.hinzufuegen(bild.path)) }
+                return@arbeiten
+            }
             val temp = File(context.cacheDir, "import_${UUID.randomUUID()}.pdf")
             try {
                 val eingang = context.contentResolver.openInputStream(uri) ?: error("Datei nicht lesbar: $uri")
@@ -68,6 +81,11 @@ class ErfassungViewModel(private val container: AppContainer, private val contex
             }
         }
     }
+
+    fun artWaehlen(art: BelegArt) = _state.update { it.copy(art = art) }
+
+    /** Nach dem Speichern eines Bescheids: Zwischenbilder verwerfen (PDF liegt schon im Ablageordner). */
+    fun entwurfLeeren() { _state.value = ErfassungState() }
 
     fun verschieben(von: Int, nach: Int) = aendern { it.verschieben(von, nach) }
     fun loesen(index: Int) = aendern { it.loesen(index) }

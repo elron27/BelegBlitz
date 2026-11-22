@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.belegblitz.R
 import de.belegblitz.domain.RechnungEingabe
+import de.belegblitz.domain.Unsicherheit
+import de.belegblitz.domain.VorschlagFeld
 
 /** SR-619cbca1ae6e: Prüfbildschirm mit Praxis, Fachrichtung, Datum, Betrag; Felder kommen leer oder vom Erkenner. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,6 +41,13 @@ fun PruefenScreen(vm: ErfassungViewModel, onZurueck: () -> Unit, onGespeichert: 
     var datum by rememberSaveable { mutableStateOf("") }
     var betrag by rememberSaveable { mutableStateOf("") }
     var ungueltig by rememberSaveable { mutableStateOf(false) }
+    // SR-e268ffbc5098: unsicher erkannte Felder bleiben markiert, bis der Nutzer sie anfasst (bestätigt/korrigiert)
+    var bestaetigtText by rememberSaveable { mutableStateOf("") }
+    val bestaetigt = bestaetigtText.split(',').mapNotNull { n -> VorschlagFeld.entries.firstOrNull { it.name == n } }.toSet()
+    val offen = Unsicherheit.offen(state.vorschlag, bestaetigt)
+    fun bestaetige(f: VorschlagFeld) { bestaetigtText = (bestaetigt + f).joinToString(",") { it.name }; ungueltig = false }
+    fun markierung(f: VorschlagFeld): @Composable (() -> Unit)? =
+        if (f in offen) { { Text(stringResource(R.string.confirm_value)) } } else null
 
     LaunchedEffect(Unit) { if (state.vorschlag == null) vm.vorschlagLaden() }
     // Vorschlag nur in leere Felder eintragen, damit Eingaben des Nutzers nie überschrieben werden
@@ -66,20 +75,24 @@ fun PruefenScreen(vm: ErfassungViewModel, onZurueck: () -> Unit, onGespeichert: 
         ) {
             Text(stringResource(R.string.review_hint), style = MaterialTheme.typography.bodyMedium)
             OutlinedTextField(
-                praxis, { praxis = it; ungueltig = false }, Modifier.fillMaxWidth(), singleLine = true,
+                praxis, { praxis = it; bestaetige(VorschlagFeld.PRAXIS) }, Modifier.fillMaxWidth(), singleLine = true,
+                isError = VorschlagFeld.PRAXIS in offen, supportingText = markierung(VorschlagFeld.PRAXIS),
                 label = { Text(stringResource(R.string.field_practice)) },
             )
             OutlinedTextField(
-                fachrichtung, { fachrichtung = it; ungueltig = false }, Modifier.fillMaxWidth(), singleLine = true,
+                fachrichtung, { fachrichtung = it; bestaetige(VorschlagFeld.FACHRICHTUNG) }, Modifier.fillMaxWidth(), singleLine = true,
+                isError = VorschlagFeld.FACHRICHTUNG in offen, supportingText = markierung(VorschlagFeld.FACHRICHTUNG),
                 label = { Text(stringResource(R.string.field_specialty)) },
             )
             OutlinedTextField(
-                datum, { datum = it; ungueltig = false }, Modifier.fillMaxWidth(), singleLine = true,
+                datum, { datum = it; bestaetige(VorschlagFeld.DATUM) }, Modifier.fillMaxWidth(), singleLine = true,
+                isError = VorschlagFeld.DATUM in offen, supportingText = markierung(VorschlagFeld.DATUM),
                 label = { Text(stringResource(R.string.field_date)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
             OutlinedTextField(
-                betrag, { betrag = it; ungueltig = false }, Modifier.fillMaxWidth(), singleLine = true,
+                betrag, { betrag = it; bestaetige(VorschlagFeld.BETRAG) }, Modifier.fillMaxWidth(), singleLine = true,
+                isError = VorschlagFeld.BETRAG in offen, supportingText = markierung(VorschlagFeld.BETRAG),
                 label = { Text(stringResource(R.string.field_amount)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
@@ -89,7 +102,7 @@ fun PruefenScreen(vm: ErfassungViewModel, onZurueck: () -> Unit, onGespeichert: 
             Button(
                 onClick = {
                     if (eingabe == null) ungueltig = true else vm.speichern(eingabe) { weitere ->
-                        praxis = ""; fachrichtung = ""; datum = ""; betrag = ""
+                        praxis = ""; fachrichtung = ""; datum = ""; betrag = ""; bestaetigtText = ""
                         onGespeichert(weitere)
                     }
                 },

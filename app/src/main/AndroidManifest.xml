@@ -26,6 +26,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/pdf" />
             </intent-filter>
+            <!-- SR-3273b2e9382d: Screenshot/Bild per Teilen übernehmen -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
             <!-- SR-4eb0053fe161: PDF über "Öffnen mit" übernehmen -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
