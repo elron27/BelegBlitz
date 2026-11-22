@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BelegBlitz</string>
+    <string name="default_person_name">Ich</string>
+    <string name="invoices_title">Rechnungen</string>
+    <string name="invoices_empty">Noch keine Rechnungen. Tippe auf „Neue Rechnung“, um die erste anzulegen.</string>
+    <string name="new_invoice">Neue Rechnung</string>
+    <string name="settings">Einstellungen</string>
+    <string name="back">Zurück</string>
+    <string name="vkb_title">VKB-Beitragsverlauf</string>
+    <string name="vkb_hint">Monatsbeitrag und das Datum, ab dem er gilt. Mehrere Einträge bilden einen Verlauf.</string>
+    <string name="vkb_amount">Monatsbeitrag (EUR)</string>
+    <string name="vkb_valid_from">Gültig ab (TT.MM.JJJJ)</string>
+    <string name="vkb_add">Hinzufügen</string>
+    <string name="vkb_delete">Löschen</string>
+    <string name="vkb_empty">Noch keine Einträge.</string>
+    <string name="vkb_entry">%1$s pro Monat ab %2$s</string>
+    <string name="vkb_invalid">Bitte einen gültigen Betrag und ein gültiges Datum eingeben.</string>
+</resources>

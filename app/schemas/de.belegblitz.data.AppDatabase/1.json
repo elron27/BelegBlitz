@@ -1,0 +1,392 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "7edf09a75ae1c3c1cb75c2e8923e9340",
+    "entities": [
+      {
+        "tableName": "Person",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "Rechnung",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `personId` INTEGER NOT NULL, `praxis` TEXT NOT NULL, `fachrichtung` TEXT NOT NULL, `rechnungsdatum` INTEGER NOT NULL, `betragCent` INTEGER NOT NULL, `titel` TEXT NOT NULL, `pdfPfad` TEXT, `ocrText` TEXT, `erstellt` INTEGER NOT NULL, FOREIGN KEY(`personId`) REFERENCES `Person`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "personId",
+            "columnName": "personId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "praxis",
+            "columnName": "praxis",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fachrichtung",
+            "columnName": "fachrichtung",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rechnungsdatum",
+            "columnName": "rechnungsdatum",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "betragCent",
+            "columnName": "betragCent",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titel",
+            "columnName": "titel",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pdfPfad",
+            "columnName": "pdfPfad",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ocrText",
+            "columnName": "ocrText",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "erstellt",
+            "columnName": "erstellt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Rechnung_personId",
+            "unique": false,
+            "columnNames": [
+              "personId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Rechnung_personId` ON `${TABLE_NAME}` (`personId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Person",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "personId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Einreichung",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `rechnungId` INTEGER NOT NULL, `kasse` TEXT NOT NULL, `einreichungsdatum` INTEGER, `betragCent` INTEGER NOT NULL, `status` TEXT NOT NULL, `erstatteterBetragCent` INTEGER, `hinweis` TEXT, `dokumentPfad` TEXT, FOREIGN KEY(`rechnungId`) REFERENCES `Rechnung`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rechnungId",
+            "columnName": "rechnungId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kasse",
+            "columnName": "kasse",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "einreichungsdatum",
+            "columnName": "einreichungsdatum",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "betragCent",
+            "columnName": "betragCent",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "erstatteterBetragCent",
+            "columnName": "erstatteterBetragCent",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hinweis",
+            "columnName": "hinweis",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dokumentPfad",
+            "columnName": "dokumentPfad",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Einreichung_rechnungId",
+            "unique": false,
+            "columnNames": [
+              "rechnungId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Einreichung_rechnungId` ON `${TABLE_NAME}` (`rechnungId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Rechnung",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "rechnungId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Bescheid",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `kasse` TEXT NOT NULL, `datum` INTEGER NOT NULL, `dokumentPfad` TEXT, `ocrText` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kasse",
+            "columnName": "kasse",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "datum",
+            "columnName": "datum",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dokumentPfad",
+            "columnName": "dokumentPfad",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ocrText",
+            "columnName": "ocrText",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "BescheidPosition",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bescheidId` INTEGER NOT NULL, `rechnungId` INTEGER NOT NULL, `einreichungId` INTEGER, `betragCent` INTEGER NOT NULL, FOREIGN KEY(`bescheidId`) REFERENCES `Bescheid`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rechnungId`) REFERENCES `Rechnung`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`einreichungId`) REFERENCES `Einreichung`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bescheidId",
+            "columnName": "bescheidId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rechnungId",
+            "columnName": "rechnungId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "einreichungId",
+            "columnName": "einreichungId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "betragCent",
+            "columnName": "betragCent",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_BescheidPosition_bescheidId",
+            "unique": false,
+            "columnNames": [
+              "bescheidId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_BescheidPosition_bescheidId` ON `${TABLE_NAME}` (`bescheidId`)"
+          },
+          {
+            "name": "index_BescheidPosition_rechnungId",
+            "unique": false,
+            "columnNames": [
+              "rechnungId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_BescheidPosition_rechnungId` ON `${TABLE_NAME}` (`rechnungId`)"
+          },
+          {
+            "name": "index_BescheidPosition_einreichungId",
+            "unique": false,
+            "columnNames": [
+              "einreichungId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_BescheidPosition_einreichungId` ON `${TABLE_NAME}` (`einreichungId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Bescheid",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "bescheidId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "Rechnung",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "rechnungId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "Einreichung",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "einreichungId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "VkbBeitrag",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `gueltigAb` INTEGER NOT NULL, `monatsbetragCent` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gueltigAb",
+            "columnName": "gueltigAb",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "monatsbetragCent",
+            "columnName": "monatsbetragCent",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7edf09a75ae1c3c1cb75c2e8923e9340')"
+    ]
+  }
+}

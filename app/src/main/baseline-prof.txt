@@ -1,0 +1,4 @@
+# Baseline Profile: Diese Pfade lässt Android vorab kompilieren, statt sie anfangs zu interpretieren.
+# Die Bibliotheken (Compose usw.) bringen eigene Profile mit.
+HSPLde/belegblitz/**;->**(**)**
+Lde/belegblitz/**;
