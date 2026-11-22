@@ -1,6 +1,8 @@
 package de.belegblitz.ui.detail
 
+import android.content.ComponentName
 import android.content.Context
+import de.belegblitz.MainActivity
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
@@ -130,7 +132,12 @@ private fun dokumentOeffnen(context: Context, datei: File) {
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", datei)
         val intent = Intent(Intent.ACTION_VIEW).setDataAndType(uri, "application/pdf")
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        context.startActivity(intent)
+        // Die eigene App (PDF-Import per "Öffnen mit") soll nicht als Betrachter angeboten werden
+        val auswahl = Intent.createChooser(intent, null).putExtra(
+            Intent.EXTRA_EXCLUDE_COMPONENTS,
+            arrayOf(ComponentName(context, MainActivity::class.java)),
+        )
+        context.startActivity(auswahl)
     } catch (ex: Exception) {
         Log.e("Einreichung", "Dokument nicht zu öffnen: ${datei.name}", ex)
         Toast.makeText(context, R.string.open_document_failed, Toast.LENGTH_LONG).show()

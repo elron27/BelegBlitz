@@ -13,7 +13,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.Arrangement
@@ -60,7 +60,7 @@ class MainActivity : FragmentActivity() {
         setContent {
             BelegBlitzTheme {
                 val gesperrt by container.gesperrt.collectAsStateWithLifecycle()
-                if (gesperrt) SperrBildschirm(onEntsperren = { entsperren(container) }) else AppNavigation(container)
+                if (gesperrt) SperrBildschirm(onEntsperren = { entsperren(container, erneut = true) }) else AppNavigation(container)
             }
         }
     }
@@ -88,9 +88,10 @@ class MainActivity : FragmentActivity() {
     }
 
     /** Fingerabdruck, ersatzweise Gerätesperre. Ohne eingerichtete Sperre wird nicht ausgesperrt. */
-    private fun entsperren(container: AppContainer) {
-        if (abfrageLaeuft) return
-        val art = BIOMETRIC_STRONG or DEVICE_CREDENTIAL
+    private fun entsperren(container: AppContainer, erneut: Boolean = false) {
+        // Knopf im Sperrbildschirm: neuer Versuch auch dann, wenn eine Abfrage hängen geblieben ist
+        if (abfrageLaeuft && !erneut) return
+        val art = BIOMETRIC_WEAK or DEVICE_CREDENTIAL
         if (BiometricManager.from(this).canAuthenticate(art) != BiometricManager.BIOMETRIC_SUCCESS) {
             Log.w("Sperre", "Keine Authentifizierung verfügbar, App bleibt offen")
             container.gesperrt.value = false
