@@ -24,12 +24,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.belegblitz.AppContainer
 import de.belegblitz.ui.list.InvoiceListScreen
+import de.belegblitz.ui.auswertung.SucheScreen
+import de.belegblitz.ui.auswertung.UebersichtScreen
 import de.belegblitz.ui.settings.SettingsScreen
 import de.belegblitz.ui.settings.SettingsViewModel
 
 object Routes {
     const val LISTE = "liste"
     const val EINSTELLUNGEN = "einstellungen"
+    const val UEBERSICHT = "uebersicht"
+    const val SUCHE = "suche"
     const val ERFASSUNG = "erfassung"
     const val PRUEFEN = "pruefen"
     const val BESCHEID = "bescheid"
@@ -70,6 +74,8 @@ fun AppNavigation(container: AppContainer) {
             InvoiceListScreen(
                 container,
                 onSettings = { nav.navigate(Routes.EINSTELLUNGEN) },
+                onUebersicht = { nav.navigate(Routes.UEBERSICHT) },
+                onSuche = { nav.navigate(Routes.SUCHE) },
                 onNeu = { nav.navigate(Routes.ERFASSUNG) },
                 onOeffnen = { nav.navigate("rechnung/$it") },
             )
@@ -103,6 +109,10 @@ fun AppNavigation(container: AppContainer) {
         }
         composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) {
             InvoiceDetailScreen(container, it.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
+        }
+        composable(Routes.UEBERSICHT) { UebersichtScreen(container, onBack = { nav.popBackStack() }) }
+        composable(Routes.SUCHE) {
+            SucheScreen(container, onBack = { nav.popBackStack() }, onOeffnen = { nav.navigate("rechnung/$it") })
         }
         composable(Routes.EINSTELLUNGEN) {
             val vm: SettingsViewModel = viewModel(factory = SettingsViewModel.factory(container))

@@ -1,6 +1,12 @@
 package de.belegblitz.ui.detail
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
+import android.widget.Toast
+import androidx.core.content.FileProvider
+import androidx.compose.ui.platform.LocalContext
+import java.io.File
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -90,7 +96,7 @@ private fun EinreichungKarte(
                 ) { Text(stringResource(R.string.create_submission, kasse.name, Geld.formatEuro(betrag))) }
                 return@Column
             }
-            Text(stringResource(R.string.submission_amount, Geld.formatEuro(e.betragCent)), style = MaterialTheme.typography.bodyMedium)
+            BetragFeld(e) { c -> tun("Betrag") { speicher.betragAendern(e, c) } }
             e.erstatteterBetragCent?.let {
                 Text(stringResource(R.string.refunded_amount, Geld.formatEuro(it)), style = MaterialTheme.typography.bodyMedium)
             }
@@ -98,7 +104,13 @@ private fun EinreichungKarte(
                 Text(stringResource(R.string.notice_amount, Geld.formatEuro(it)), style = MaterialTheme.typography.bodySmall)
             }
             // SR-7d1f8913431f Kriterium 3: Verweis auf das eingereichte Dokument (die Seiten stehen unten)
-            e.dokumentPfad?.let { Text(stringResource(R.string.submitted_document, it), style = MaterialTheme.typography.bodySmall) }
+            e.dokumentPfad?.let { name ->
+                val context = LocalContext.current
+                Text(stringResource(R.string.submitted_document, name), style = MaterialTheme.typography.bodySmall)
+                OutlinedButton(onClick = { dokumentOeffnen(context, container.pdfDatei(name)) }) {
+                    Text(stringResource(R.string.open_document))
+                }
+            }
             // SR-9b67f3ef174c: ein Tipp
             if (Einreichungsregeln.kannAlsEingereichtMarkiert(e.status)) {
                 Button(
@@ -108,6 +120,36 @@ private fun EinreichungKarte(
             }
             if (e.einreichungsdatum != null) DatumFeld(e) { d -> tun("Datum") { speicher.datumAendern(e, d) } }
             HinweisFeld(e) { t -> tun("Hinweis") { speicher.hinweisAendern(e, t) } }
+        }
+    }
+}
+
+/** SR-7d1f8913431f Kriterium 3: eingereichtes Dokument im PDF-Betrachter öffnen. */
+private fun dokumentOeffnen(context: Context, datei: File) {
+    try {
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", datei)
+        val intent = Intent(Intent.ACTION_VIEW).setDataAndType(uri, "application/pdf")
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        context.startActivity(intent)
+    } catch (ex: Exception) {
+        Log.e("Einreichung", "Dokument nicht zu öffnen: ${datei.name}", ex)
+        Toast.makeText(context, R.string.open_document_failed, Toast.LENGTH_LONG).show()
+    }
+}
+
+/** SR-7d1f8913431f: Betrag der Einreichung bearbeiten. */
+@Composable
+private fun BetragFeld(e: Einreichung, speichern: (Long) -> Unit) {
+    val original = "%d,%02d".format(e.betragCent / 100, e.betragCent % 100)
+    var text by remember(original) { mutableStateOf(original) }
+    val cent = Geld.parseCent(text)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            text, { text = it }, Modifier.weight(1f), singleLine = true, isError = cent == null || cent <= 0,
+            label = { Text(stringResource(R.string.submission_amount_field)) },
+        )
+        OutlinedButton(onClick = { cent?.let(speichern) }, enabled = cent != null && cent > 0 && text != original) {
+            Text(stringResource(R.string.save))
         }
     }
 }

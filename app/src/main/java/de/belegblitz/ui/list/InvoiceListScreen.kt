@@ -34,13 +34,17 @@ import de.belegblitz.domain.RechnungEingabe
 /** SR-8d2f40b64013: gespeicherte Rechnungen mit Titel, Datum und Betrag. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InvoiceListScreen(container: AppContainer, onSettings: () -> Unit, onNeu: () -> Unit, onOeffnen: (Long) -> Unit) {
+fun InvoiceListScreen(container: AppContainer, onSettings: () -> Unit, onUebersicht: () -> Unit, onSuche: () -> Unit, onNeu: () -> Unit, onOeffnen: (Long) -> Unit) {
     val rechnungen by remember { container.db.rechnungDao().alle() }.collectAsStateWithLifecycle(emptyList())
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.invoices_title)) },
-                actions = { TextButton(onClick = onSettings) { Text(stringResource(R.string.settings)) } },
+                actions = {
+                    TextButton(onClick = onSuche) { Text(stringResource(R.string.search_title)) }
+                    TextButton(onClick = onUebersicht) { Text(stringResource(R.string.overview_title)) }
+                    TextButton(onClick = onSettings) { Text(stringResource(R.string.settings)) }
+                },
             )
         },
         floatingActionButton = {

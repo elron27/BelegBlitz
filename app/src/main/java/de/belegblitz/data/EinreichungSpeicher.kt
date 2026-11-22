@@ -29,6 +29,15 @@ class EinreichungSpeicher(private val db: AppDatabase) {
     suspend fun datumAendern(e: Einreichung, datum: LocalDate?) =
         db.einreichungDao().aktualisieren(e.copy(einreichungsdatum = datum))
 
+    /** SR-7d1f8913431f: Betrag der Einreichung bearbeiten; Status folgt einer vorhandenen Erstattung. */
+    suspend fun betragAendern(e: Einreichung, betragCent: Long) =
+        db.einreichungDao().aktualisieren(
+            e.copy(
+                betragCent = betragCent,
+                status = Einreichungsregeln.statusNachBetragsaenderung(e.status, betragCent, e.erstatteterBetragCent),
+            ),
+        )
+
     /** SR-a6fc7a6cdbe1 (Kriterium 2): Hinweistext bearbeiten oder selbst eintragen. */
     suspend fun hinweisAendern(e: Einreichung, text: String) =
         db.einreichungDao().aktualisieren(e.copy(hinweis = text.trim().ifEmpty { null }))

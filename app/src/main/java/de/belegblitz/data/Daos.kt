@@ -12,6 +12,9 @@ interface PersonDao {
     @Query("SELECT COUNT(*) FROM Person")
     suspend fun anzahl(): Int
 
+    @Query("SELECT * FROM Person ORDER BY id")
+    fun alle(): Flow<List<Person>>
+
     @Query("SELECT id FROM Person ORDER BY id LIMIT 1")
     suspend fun ersteId(): Long?
 
@@ -37,6 +40,10 @@ interface RechnungDao {
 /** SR-7d1f8913431f: Einreichungen je Rechnung und Kasse. */
 @Dao
 interface EinreichungDao {
+    /** SR-2b75d02ae8a8: live für die Übersicht. */
+    @Query("SELECT * FROM Einreichung")
+    fun alle(): Flow<List<Einreichung>>
+
     @Query("SELECT * FROM Einreichung WHERE rechnungId = :rechnungId")
     fun jeRechnung(rechnungId: Long): Flow<List<Einreichung>>
 
@@ -70,6 +77,10 @@ interface BescheidDao {
 
     @Query("SELECT * FROM Bescheid")
     fun alle(): Flow<List<Bescheid>>
+
+    /** SR-84e9478a8eb5: Suche ordnet Bescheide über ihre Positionen einer Rechnung zu. */
+    @Query("SELECT * FROM BescheidPosition")
+    fun allePositionen(): Flow<List<BescheidPosition>>
 }
 
 @Dao

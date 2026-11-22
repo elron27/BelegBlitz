@@ -27,6 +27,13 @@ object Einreichungsregeln {
         return Erstattungsstand(summe, StatusAbleitung.ausErstattung(eingereichtCent, summe))
     }
 
+    /**
+     * SR-7d1f8913431f: Wird der Betrag einer Einreichung geändert, folgt der Status der bereits erfassten
+     * Erstattung (SR-40de3efa693e); ohne Erstattung bleibt der Status.
+     */
+    fun statusNachBetragsaenderung(status: EinreichungStatus, neuerBetragCent: Long, erstattetCent: Long?): EinreichungStatus =
+        if (erstattetCent == null) status else StatusAbleitung.ausErstattung(neuerBetragCent, erstattetCent)
+
     /** SR-d2f03abf6d13 (Kriterium 1): bei der DAK abgelehnt oder nur teilweise erstattet -> VKB anbieten. */
     fun vkbAnbieten(dakStatus: EinreichungStatus) =
         dakStatus == EinreichungStatus.ABGELEHNT || dakStatus == EinreichungStatus.TEILWEISE_ERSTATTET

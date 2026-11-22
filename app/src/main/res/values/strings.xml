@@ -79,4 +79,26 @@
     <string name="submitted_document">Submitted document: %1$s</string>
     <string name="mark_submitted">Mark as submitted</string>
     <string name="submitted_on">Submitted on (DD.MM.YYYY)</string>
+    <string name="open_document">Open</string>
+    <string name="open_document_failed">No app found to open the PDF.</string>
+    <string name="submission_amount_field">Submitted amount (EUR)</string>
+    <string name="overview_title">Overview</string>
+    <string name="filter_year">Year</string>
+    <string name="filter_fund">Fund</string>
+    <string name="filter_person">Person</string>
+    <string name="filter_all">All</string>
+    <string name="sum_submitted">Submitted</string>
+    <string name="sum_refunded">Refunded</string>
+    <string name="sum_open">Open</string>
+    <string name="vkb_balance_title">VKB balance %1$d</string>
+    <string name="vkb_balance_running">Current year: counted only up to the current month (%1$d months)</string>
+    <string name="vkb_contributions">Contributions</string>
+    <string name="vkb_refunds">VKB refunds</string>
+    <string name="vkb_difference">Difference</string>
+    <string name="vkb_recovered_yes">Contributions recovered</string>
+    <string name="vkb_recovered_no">Contributions not yet recovered</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search in invoice and notice text</string>
+    <string name="search_none">No results.</string>
+    <string name="search_notice">Notice</string>
 </resources>

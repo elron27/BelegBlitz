@@ -79,4 +79,26 @@
     <string name="submitted_document">Eingereichtes Dokument: %1$s</string>
     <string name="mark_submitted">Als eingereicht markieren</string>
     <string name="submitted_on">Eingereicht am (TT.MM.JJJJ)</string>
+    <string name="open_document">Öffnen</string>
+    <string name="open_document_failed">Keine App zum Öffnen des PDFs gefunden.</string>
+    <string name="submission_amount_field">Eingereichter Betrag (EUR)</string>
+    <string name="overview_title">Übersicht</string>
+    <string name="filter_year">Jahr</string>
+    <string name="filter_fund">Kasse</string>
+    <string name="filter_person">Person</string>
+    <string name="filter_all">Alle</string>
+    <string name="sum_submitted">Eingereicht</string>
+    <string name="sum_refunded">Erstattet</string>
+    <string name="sum_open">Offen</string>
+    <string name="vkb_balance_title">VKB-Bilanz %1$d</string>
+    <string name="vkb_balance_running">Laufendes Jahr: nur bis zum aktuellen Monat gezählt (%1$d Monate)</string>
+    <string name="vkb_contributions">Beiträge</string>
+    <string name="vkb_refunds">VKB-Erstattungen</string>
+    <string name="vkb_difference">Differenz</string>
+    <string name="vkb_recovered_yes">Beiträge wieder hereingeholt</string>
+    <string name="vkb_recovered_no">Beiträge noch nicht wieder hereingeholt</string>
+    <string name="search_title">Suche</string>
+    <string name="search_hint">Suche in Rechnungs- und Bescheidtext</string>
+    <string name="search_none">Keine Treffer.</string>
+    <string name="search_notice">Bescheid</string>
 </resources>

@@ -14,6 +14,8 @@ object Geld {
         return euro * 100 + cent
     }
 
-    fun formatEuro(cent: Long): String =
-        String.format(Locale.GERMANY, "%,d,%02d €", cent / 100, cent % 100)
+    fun formatEuro(cent: Long): String {
+        val a = kotlin.math.abs(cent)
+        return String.format(Locale.GERMANY, "%s%,d,%02d €", if (cent < 0) "-" else "", a / 100, a % 100)
+    }
 }
