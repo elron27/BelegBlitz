@@ -151,4 +151,7 @@
     <string name="restore_confirm_title">Replace existing data?</string>
     <string name="restore_confirm_text">This app already contains data. Restoring replaces all invoices, notices and documents with the contents of the chosen folder.</string>
     <string name="restore_confirm_yes">Replace</string>
+    <string name="pick_date">Pick date from calendar</string>
+    <string name="detected_dates">Detected dates</string>
+    <string name="date_ok">OK</string>
 </resources>

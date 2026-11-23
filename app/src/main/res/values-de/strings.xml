@@ -151,4 +151,7 @@
     <string name="restore_confirm_title">Vorhandene Daten ersetzen?</string>
     <string name="restore_confirm_text">In der App sind schon Daten vorhanden. Die Wiederherstellung ersetzt alle Rechnungen, Bescheide und Dokumente durch den Inhalt des gewählten Ordners.</string>
     <string name="restore_confirm_yes">Ersetzen</string>
+    <string name="pick_date">Datum im Kalender wählen</string>
+    <string name="detected_dates">Erkannte Daten</string>
+    <string name="date_ok">OK</string>
 </resources>

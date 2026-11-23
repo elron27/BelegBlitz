@@ -1,6 +1,19 @@
 package de.belegblitz.ui.erfassung
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.ui.res.painterResource
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,7 +45,7 @@ import de.belegblitz.domain.Unsicherheit
 import de.belegblitz.domain.VorschlagFeld
 
 /** SR-619cbca1ae6e: Prüfbildschirm mit Praxis, Fachrichtung, Datum, Betrag; Felder kommen leer oder vom Erkenner. */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun PruefenScreen(vm: ErfassungViewModel, onZurueck: () -> Unit, onGespeichert: (weitereSeiten: Boolean) -> Unit) {
     val state by vm.state.collectAsStateWithLifecycle()
@@ -40,6 +53,7 @@ fun PruefenScreen(vm: ErfassungViewModel, onZurueck: () -> Unit, onGespeichert: 
     var fachrichtung by rememberSaveable { mutableStateOf("") }
     var datum by rememberSaveable { mutableStateOf("") }
     var betrag by rememberSaveable { mutableStateOf("") }
+    var kalender by rememberSaveable { mutableStateOf(false) }
     var ungueltig by rememberSaveable { mutableStateOf(false) }
     // SR-e268ffbc5098: unsicher erkannte Felder bleiben markiert, bis der Nutzer sie anfasst (bestätigt/korrigiert)
     var bestaetigtText by rememberSaveable { mutableStateOf("") }
@@ -89,13 +103,30 @@ fun PruefenScreen(vm: ErfassungViewModel, onZurueck: () -> Unit, onGespeichert: 
                 isError = VorschlagFeld.DATUM in offen, supportingText = markierung(VorschlagFeld.DATUM),
                 label = { Text(stringResource(R.string.field_date)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                trailingIcon = {
+                    IconButton(onClick = { kalender = true }) {
+                        Icon(painterResource(R.drawable.ic_calendar), stringResource(R.string.pick_date))
+                    }
+                },
             )
+            // SR-306dc2: mehrere erkannte Daten als wählbare Vorschläge; Antippen setzt das Feld
+            val kandidaten = state.vorschlag?.datumKandidaten.orEmpty()
+            if (kandidaten.size > 1) {
+                Text(stringResource(R.string.detected_dates), style = MaterialTheme.typography.bodySmall)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    for (k in kandidaten) {
+                        val text = k.format(RechnungEingabe.DatumFormat)
+                        FilterChip(selected = datum.trim() == text, onClick = { datum = text; bestaetige(VorschlagFeld.DATUM) }, label = { Text(text) })
+                    }
+                }
+            }
             OutlinedTextField(
                 betrag, { betrag = it; bestaetige(VorschlagFeld.BETRAG) }, Modifier.fillMaxWidth(), singleLine = true,
                 isError = VorschlagFeld.BETRAG in offen, supportingText = markierung(VorschlagFeld.BETRAG),
                 label = { Text(stringResource(R.string.field_amount)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
+            if (kalender) DatumDialog(datum, { datum = it; bestaetige(VorschlagFeld.DATUM); kalender = false }, { kalender = false })
             if (eingabe != null) Text(stringResource(R.string.title_preview, eingabe.titel), style = MaterialTheme.typography.bodySmall)
             if (ungueltig) Text(stringResource(R.string.review_invalid), color = MaterialTheme.colorScheme.error)
             state.fehler?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error) }
@@ -112,3 +143,25 @@ fun PruefenScreen(vm: ErfassungViewModel, onZurueck: () -> Unit, onGespeichert: 
         }
     }
 }
+
+/** SR-306dc2: Kalenderauswahl; Startwert = aktuelles Feld (falls gültig), Ergebnis im Format [RechnungEingabe.DatumFormat]. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DatumDialog(aktuell: String, onWahl: (String) -> Unit, onAbbruch: () -> Unit) {
+    val start = try { LocalDate.parse(aktuell.trim(), RechnungEingabe.DatumFormat) } catch (e: java.time.DateTimeException) { null }
+    val state = rememberDatePickerState(initialSelectedDateMillis = start?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli())
+    DatePickerDialog(
+        onDismissRequest = onAbbruch,
+        confirmButton = {
+            TextButton(
+                enabled = state.selectedDateMillis != null,
+                onClick = { state.selectedDateMillis?.let { onWahl(datumText(it)) } },
+            ) { Text(stringResource(R.string.date_ok)) }
+        },
+        dismissButton = { TextButton(onClick = onAbbruch) { Text(stringResource(R.string.cancel)) } },
+    ) { DatePicker(state) }
+}
+
+/** SR-306dc2: Auswahl des DatePickers (UTC-Mitternacht in Millisekunden) als Text im Feldformat. */
+internal fun datumText(utcMillis: Long): String =
+    Instant.ofEpochMilli(utcMillis).atZone(ZoneOffset.UTC).toLocalDate().format(RechnungEingabe.DatumFormat)

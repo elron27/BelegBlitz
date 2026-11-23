@@ -187,4 +187,18 @@ class OcrParserTest {
         val keiner = Zuordnung.kandidaten(dak.positionen[0], listOf(RechnungMerkmale(1, LocalDate.of(2026, 1, 1), "Zahnarzt", 1)))
         assertTrue(keiner.kandidaten.isEmpty())
     }
+
+    // SR-306dc2, Kriterium 1: alle erkannten Daten eindeutig in Dokumentreihenfolge, wahrscheinlichstes bleibt datum
+    @Test fun `SR-306dc2 Kriterium 1 Kandidaten Testrechnung eindeutig in Reihenfolge`() {
+        val r = rechnung
+        assertEquals(listOf(d, LocalDate.of(2026, 8, 27)), r.datumKandidaten) // 28.07.26 ist Dublette von 28.07.2026
+        assertEquals(d, r.alsVorschlag(null).datum)
+        assertEquals(r.datumKandidaten, r.alsVorschlag(null).datumKandidaten)
+    }
+
+    @Test fun `SR-306dc2 Kriterium 1 Kandidaten Formate und ungueltige Daten`() {
+        val r = RechnungParser.auswerten(listOf("Rechnung vom 05.03.26\nLeistung 31.02.2026\nZahlung bis 15.04.2026\n05.03.2026"))
+        assertEquals(listOf(LocalDate.of(2026, 3, 5), LocalDate.of(2026, 4, 15)), r.datumKandidaten)
+        assertTrue(RechnungParser.auswerten(listOf("kein Datum")).datumKandidaten.isEmpty())
+    }
 }
