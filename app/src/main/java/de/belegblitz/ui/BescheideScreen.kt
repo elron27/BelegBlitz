@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +53,7 @@ fun BescheideScreen(container: AppContainer, onReiter: (Reiter) -> Unit, onSetti
     ) { padding ->
         if (karten.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding).padding(32.dp), contentAlignment = Alignment.Center) {
-                Text(stringResource(R.string.notices_empty), textAlign = TextAlign.Center)
+                LeererZustand(Icons.Filled.Inventory2, stringResource(R.string.empty_notices_title), stringResource(R.string.notices_empty))
             }
         } else {
             LazyColumn(

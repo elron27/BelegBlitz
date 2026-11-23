@@ -177,4 +177,10 @@
     <string name="notice_open_external">Extern öffnen</string>
     <string name="notice_invoices_heading">Zugeordnete Rechnungen</string>
     <string name="notice_not_found">Dieser Bescheid existiert nicht mehr.</string>
+    <string name="empty_invoices_title">Noch keine Rechnungen</string>
+    <string name="empty_first_invoice">Erste Rechnung erfassen</string>
+    <string name="empty_notices_title">Noch keine Bescheide</string>
+    <string name="empty_search_title">Nichts gefunden</string>
+    <string name="label_progress">%1$d %% des eingereichten Betrags erstattet</string>
+    <string name="invoice_meta">%1$s · %2$s</string>
 </resources>

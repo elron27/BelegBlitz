@@ -7,7 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Card
+import androidx.compose.ui.Alignment
+import de.belegblitz.ui.LeererZustand
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -77,7 +82,11 @@ fun SucheScreen(container: AppContainer, onReiter: (Reiter) -> Unit, onSettings:
                 anfrage, { anfrage = it }, Modifier.fillMaxWidth(), singleLine = true,
                 label = { Text(stringResource(R.string.search_hint)) },
             )
-            if (anfrage.isNotBlank() && treffer.isEmpty()) Text(stringResource(R.string.search_none))
+            if (anfrage.isNotBlank() && treffer.isEmpty()) {
+                Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                    LeererZustand(Icons.Filled.SearchOff, stringResource(R.string.empty_search_title), stringResource(R.string.search_none))
+                }
+            }
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(treffer, key = { "${it.dokument.art}${it.dokument.id}" }) { t ->
                     val ziel = t.dokument.rechnungId

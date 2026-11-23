@@ -1,8 +1,15 @@
 package de.belegblitz.ui
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -16,13 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.vector.ImageVector
 import de.belegblitz.R
 import de.belegblitz.domain.Reiter
 
 /**
  * SR-1571303342c4 (löst SR-1d598be18236 Kriterium 1 ab): feste untere Leiste mit den vier Hauptzielen
- * (ohne Icons-Bibliothek, nur Text); [onWaehlen] meldet das gewählte Ziel, auch das bereits aktive.
+ * (mit Icons und Beschriftung); [onWaehlen] meldet das gewählte Ziel, auch das bereits aktive.
  */
 @Composable
 fun ReiterLeiste(aktiv: Reiter, onWaehlen: (Reiter) -> Unit) {
@@ -30,11 +37,18 @@ fun ReiterLeiste(aktiv: Reiter, onWaehlen: (Reiter) -> Unit) {
         for (reiter in Reiter.entries) {
             NavigationBarItem(
                 selected = aktiv == reiter, onClick = { if (reiter != aktiv) onWaehlen(reiter) },
-                icon = {}, alwaysShowLabel = true,
+                icon = { Icon(reiter.symbol(), contentDescription = null) }, alwaysShowLabel = true,
                 label = { Text(stringResource(reiter.beschriftung()), maxLines = 1) },
             )
         }
     }
+}
+
+private fun Reiter.symbol(): ImageVector = when (this) {
+    Reiter.RECHNUNGEN -> Icons.Filled.Description
+    Reiter.BESCHEIDE -> Icons.Filled.Inventory2
+    Reiter.UEBERSICHT -> Icons.Filled.BarChart
+    Reiter.SUCHE -> Icons.Filled.Search
 }
 
 private fun Reiter.beschriftung() = when (this) {
@@ -53,7 +67,7 @@ fun UeberlaufMenue(onSettings: () -> Unit) {
         onClick = { offen = true },
         modifier = Modifier.size(TitelleistenKnopfGroesse).semantics { contentDescription = beschreibung },
     ) {
-        Text("⋮", fontSize = 24.sp)
+        Icon(Icons.Filled.MoreVert, contentDescription = null)
     }
     DropdownMenu(expanded = offen, onDismissRequest = { offen = false }) {
         DropdownMenuItem(text = { Text(stringResource(R.string.settings)) }, onClick = { offen = false; onSettings() })
