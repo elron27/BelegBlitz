@@ -59,7 +59,7 @@ fun InvoiceDetailScreen(container: AppContainer, id: Long, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(rechnung?.titel.orEmpty()) },
+                title = { Text(de.belegblitz.domain.Titel.fuerAnzeige(rechnung?.titel.orEmpty())) },
                 navigationIcon = { ZurueckKnopf(onClick = onBack) },
             )
         },
