@@ -23,6 +23,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.belegblitz.AppContainer
+import de.belegblitz.domain.Kasse
+import de.belegblitz.domain.RechnungsFilter
+import de.belegblitz.domain.StatusGruppe
 import de.belegblitz.ui.list.InvoiceListScreen
 import de.belegblitz.ui.auswertung.SucheScreen
 import de.belegblitz.ui.auswertung.UebersichtScreen
@@ -38,6 +41,10 @@ object Routes {
     const val PRUEFEN = "pruefen"
     const val BESCHEID = "bescheid"
     const val DETAIL = "rechnung/{id}"
+    const val BESCHEIDE = "bescheide"
+
+    /** SR-75f859f5adc5: gefilterte Rechnungsliste (jahr 0 = alle Jahre). */
+    const val GEFILTERT = "rechnungen/{kasse}/{gruppe}/{jahr}"
 }
 
 @Composable
@@ -59,6 +66,7 @@ fun AppNavigation(container: AppContainer) {
             nav.navigate(Routes.ERFASSUNG) { launchSingleTop = true; popUpTo(Routes.LISTE) }
         }
     }
+    fun zuBescheiden() = nav.navigate(Routes.BESCHEIDE) { launchSingleTop = true; popUpTo(Routes.LISTE) }
     // Kurze eigene Übergänge, sonst hakt die vorhersagende Zurück-Geste
     NavHost(
         navController = nav,
@@ -78,7 +86,30 @@ fun AppNavigation(container: AppContainer) {
                 onSuche = { nav.navigate(Routes.SUCHE) },
                 onNeu = { nav.navigate(Routes.ERFASSUNG) },
                 onOeffnen = { nav.navigate("rechnung/$it") },
+                onBescheide = { zuBescheiden() },
             )
+        }
+        composable(Routes.GEFILTERT, arguments = listOf(navArgument("jahr") { type = NavType.IntType })) {
+            val a = it.arguments
+            val filter = RechnungsFilter(
+                Kasse.valueOf(a?.getString("kasse") ?: Kasse.DAK.name),
+                a?.getInt("jahr")?.takeIf { j -> j != 0 },
+                StatusGruppe.valueOf(a?.getString("gruppe") ?: StatusGruppe.OFFEN.name),
+            )
+            InvoiceListScreen(
+                container,
+                onSettings = { nav.navigate(Routes.EINSTELLUNGEN) },
+                onUebersicht = { nav.navigate(Routes.UEBERSICHT) },
+                onSuche = { nav.navigate(Routes.SUCHE) },
+                onNeu = { nav.navigate(Routes.ERFASSUNG) },
+                onOeffnen = { id -> nav.navigate("rechnung/$id") },
+                onBescheide = { zuBescheiden() },
+                filter = filter,
+                onFilterEntfernen = { nav.popBackStack(Routes.LISTE, false) },
+            )
+        }
+        composable(Routes.BESCHEIDE) {
+            BescheideScreen(container, onRechnungen = { nav.popBackStack(Routes.LISTE, false) })
         }
         composable(Routes.ERFASSUNG) {
             ErfassungScreen(
@@ -110,7 +141,13 @@ fun AppNavigation(container: AppContainer) {
         composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) {
             InvoiceDetailScreen(container, it.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
         }
-        composable(Routes.UEBERSICHT) { UebersichtScreen(container, onBack = { nav.popBackStack() }) }
+        composable(Routes.UEBERSICHT) {
+            UebersichtScreen(
+                container,
+                onBack = { nav.popBackStack() },
+                onZeile = { kasse, jahr, gruppe -> nav.navigate("rechnungen/${kasse.name}/${gruppe.name}/${jahr ?: 0}") },
+            )
+        }
         composable(Routes.SUCHE) {
             SucheScreen(container, onBack = { nav.popBackStack() }, onOeffnen = { nav.navigate("rechnung/$it") })
         }

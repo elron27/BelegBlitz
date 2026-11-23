@@ -11,9 +11,17 @@ data class AuswertungsZeile(
     val status: EinreichungStatus,
     val eingereichtCent: Long,
     val erstattetCent: Long?,
+    /** SR-75f859f5adc5: Rechnung, zu der die Einreichung gehört (für die gefilterte Rechnungsliste). */
+    val rechnungId: Long = 0,
 )
 
-data class Kassensumme(val eingereichtCent: Long, val erstattetCent: Long, val offenCent: Long)
+/** SR-d840886a42a1: nichtErstattetCent = Rest abgelehnter bzw. teilweise erstatteter Einreichungen. */
+data class Kassensumme(
+    val eingereichtCent: Long,
+    val erstattetCent: Long,
+    val offenCent: Long,
+    val nichtErstattetCent: Long = 0,
+)
 
 /** SR-2b75d02ae8a8, SR-d109d26f3f86: Summen je Kasse und Filter (reine Logik, ohne Android). */
 object Auswertung {
@@ -39,8 +47,17 @@ object Auswertung {
         val offen = eingereicht.filter {
             it.status == EinreichungStatus.EINGEREICHT || it.status == EinreichungStatus.TEILWEISE_ERSTATTET
         }.sumOf { (it.eingereichtCent - (it.erstattetCent ?: 0L)).coerceAtLeast(0L) }
-        return Kassensumme(eingereichtCent, erstattetCent, offen)
+        // SR-d840886a42a1: eingereicht minus erstattet nur bei abgelehnt/teilweise erstattet, nie negativ
+        val nichtErstattet = eingereicht.filter { it.status in NICHT_ERSTATTET_STATUS }
+            .sumOf { (it.eingereichtCent - (it.erstattetCent ?: 0L)).coerceAtLeast(0L) }
+        return Kassensumme(eingereichtCent, erstattetCent, offen, nichtErstattet)
     }
+
+    private val NICHT_ERSTATTET_STATUS = setOf(EinreichungStatus.ABGELEHNT, EinreichungStatus.TEILWEISE_ERSTATTET)
+
+    /** SR-75f859f5adc5: IDs der Rechnungen, von denen mindestens eine Einreichung zum Filter passt. */
+    fun rechnungIds(zeilen: List<AuswertungsZeile>, filter: RechnungsFilter): Set<Long> =
+        zeilen.filter { filter.passt(it) }.map { it.rechnungId }.toSet()
 
     /** Eine Summe je Kasse (beide Kassen immer vorhanden). */
     fun jeKasse(zeilen: List<AuswertungsZeile>): Map<Kasse, Kassensumme> =

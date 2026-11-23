@@ -127,7 +127,7 @@ private fun EinreichungKarte(
 }
 
 /** SR-7d1f8913431f Kriterium 3: eingereichtes Dokument im PDF-Betrachter öffnen. */
-private fun dokumentOeffnen(context: Context, datei: File) {
+internal fun dokumentOeffnen(context: Context, datei: File) {
     try {
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", datei)
         val intent = Intent(Intent.ACTION_VIEW).setDataAndType(uri, "application/pdf")

@@ -154,4 +154,17 @@
     <string name="pick_date">Pick date from calendar</string>
     <string name="detected_dates">Detected dates</string>
     <string name="date_ok">OK</string>
+    <string name="sum_not_refunded">Not refunded</string>
+    <string name="group_submitted">submitted</string>
+    <string name="group_refunded">refunded</string>
+    <string name="group_open">open</string>
+    <string name="group_not_refunded">not refunded</string>
+    <string name="filter_chip">Filter: %1$s · %2$s</string>
+    <string name="filter_chip_year">Filter: %1$s · %2$s · %3$s</string>
+    <string name="filter_remove">Remove filter</string>
+    <string name="filter_empty">No invoices match this filter.</string>
+    <string name="tab_notices">Notices</string>
+    <string name="notices_empty">No notices captured yet.</string>
+    <string name="notice_no_invoices">No invoice assigned</string>
+    <string name="notice_card_title">%1$s · %2$s</string>
 </resources>

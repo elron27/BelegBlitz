@@ -154,4 +154,17 @@
     <string name="pick_date">Datum im Kalender wählen</string>
     <string name="detected_dates">Erkannte Daten</string>
     <string name="date_ok">OK</string>
+    <string name="sum_not_refunded">Nicht erstattet</string>
+    <string name="group_submitted">eingereicht</string>
+    <string name="group_refunded">erstattet</string>
+    <string name="group_open">offen</string>
+    <string name="group_not_refunded">nicht erstattet</string>
+    <string name="filter_chip">Filter: %1$s · %2$s</string>
+    <string name="filter_chip_year">Filter: %1$s · %2$s · %3$s</string>
+    <string name="filter_remove">Filter entfernen</string>
+    <string name="filter_empty">Keine Rechnungen für diesen Filter.</string>
+    <string name="tab_notices">Bescheide</string>
+    <string name="notices_empty">Noch keine Bescheide erfasst.</string>
+    <string name="notice_no_invoices">Keiner Rechnung zugeordnet</string>
+    <string name="notice_card_title">%1$s · %2$s</string>
 </resources>
