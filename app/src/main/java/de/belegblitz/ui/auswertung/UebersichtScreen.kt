@@ -28,7 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.belegblitz.AppContainer
 import de.belegblitz.R
-import de.belegblitz.ui.ZurueckKnopf
+import de.belegblitz.domain.Reiter
+import de.belegblitz.ui.ReiterLeiste
+import de.belegblitz.ui.UeberlaufMenue
 import de.belegblitz.domain.Auswertung
 import de.belegblitz.domain.AuswertungsZeile
 import de.belegblitz.domain.BeitragsEintrag
@@ -45,7 +47,8 @@ import java.time.LocalDate
 @Composable
 fun UebersichtScreen(
     container: AppContainer,
-    onBack: () -> Unit,
+    onReiter: (Reiter) -> Unit,
+    onSettings: () -> Unit,
     onZeile: (Kasse, Int?, StatusGruppe) -> Unit,
 ) {
     val db = container.db
@@ -74,9 +77,10 @@ fun UebersichtScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.overview_title)) },
-                navigationIcon = { ZurueckKnopf(onClick = onBack) },
+                actions = { UeberlaufMenue(onSettings) },
             )
         },
+        bottomBar = { ReiterLeiste(Reiter.UEBERSICHT, onReiter) },
     ) { padding ->
         LazyColumn(
             Modifier.padding(padding).padding(horizontal = 16.dp),

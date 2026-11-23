@@ -174,4 +174,7 @@
     <string name="notices_empty">Noch keine Bescheide erfasst.</string>
     <string name="notice_no_invoices">Keiner Rechnung zugeordnet</string>
     <string name="notice_card_title">%1$s · %2$s</string>
+    <string name="notice_open_external">Extern öffnen</string>
+    <string name="notice_invoices_heading">Zugeordnete Rechnungen</string>
+    <string name="notice_not_found">Dieser Bescheid existiert nicht mehr.</string>
 </resources>

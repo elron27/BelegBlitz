@@ -31,7 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.belegblitz.AppContainer
 import de.belegblitz.R
-import de.belegblitz.ui.ZurueckKnopf
+import de.belegblitz.domain.Reiter
+import de.belegblitz.ui.ReiterLeiste
+import de.belegblitz.ui.UeberlaufMenue
 import de.belegblitz.domain.RechnungEingabe
 import de.belegblitz.domain.SuchDokument
 import de.belegblitz.domain.SuchTreffer
@@ -40,7 +42,7 @@ import de.belegblitz.domain.Volltextsuche
 /** SR-84e9478a8eb5: lokale Volltextsuche über OCR-Text von Rechnungen und Bescheiden. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SucheScreen(container: AppContainer, onBack: () -> Unit, onOeffnen: (Long) -> Unit) {
+fun SucheScreen(container: AppContainer, onReiter: (Reiter) -> Unit, onSettings: () -> Unit, onOeffnen: (Long) -> Unit) {
     val db = container.db
     val rechnungen by remember { db.rechnungDao().alle() }.collectAsStateWithLifecycle(emptyList())
     val bescheide by remember { db.bescheidDao().alle() }.collectAsStateWithLifecycle(emptyList())
@@ -65,9 +67,10 @@ fun SucheScreen(container: AppContainer, onBack: () -> Unit, onOeffnen: (Long) -
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.search_title)) },
-                navigationIcon = { ZurueckKnopf(onClick = onBack) },
+                actions = { UeberlaufMenue(onSettings) },
             )
         },
+        bottomBar = { ReiterLeiste(Reiter.SUCHE, onReiter) },
     ) { padding ->
         Column(Modifier.padding(padding).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
