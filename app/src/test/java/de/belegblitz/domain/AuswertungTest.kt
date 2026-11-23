@@ -26,7 +26,7 @@ class AuswertungTest {
         assertEquals(30000L, dak.erstattetCent)
         assertEquals(10000L + 20000L, dak.offenCent) // 10000 offen + Rest 20000 der Teilerstattung
         val vkb = Auswertung.jeKasse(zeilen).getValue(Kasse.VKB)
-        assertEquals(Kassensumme(20000, 5000, 15000), vkb)
+        assertEquals(Kassensumme(20000, 5000, 15000, 15000), vkb)
     }
 
     @Test fun `SR-2b75d02ae8a8 AC1 beide Kassen sind auch ohne Einreichungen vorhanden`() =
@@ -90,4 +90,21 @@ class AuswertungTest {
 
     @Test fun `SR-5b4224df66fd Monate ohne bekannten Beitrag zaehlen nicht`() =
         assertEquals(0L, VkbJahresbilanz.berechnen(2024, verlauf, 0, LocalDate.of(2026, 5, 10)).beitraegeCent)
+
+    // SR-d840886a42a1
+    @Test fun `SR-d840886a42a1 AC1 nicht erstattet nur aus abgelehnt und teilweise erstattet`() {
+        val dak = Auswertung.jeKasse(zeilen).getValue(Kasse.DAK)
+        assertEquals(20000L + 4000L, dak.nichtErstattetCent) // Rest Teilerstattung + abgelehnt
+        assertEquals(0L, Auswertung.summe(listOf(z(Kasse.DAK, EINGEREICHT, 100), z(Kasse.DAK, ERSTATTET, 100, 100))).nichtErstattetCent)
+    }
+
+    @Test fun `SR-d840886a42a1 AC2 nie negativ und getrennt von offen und mit Filter`() {
+        assertEquals(0L, Auswertung.summe(listOf(z(Kasse.DAK, TEILWEISE_ERSTATTET, 100, 150))).nichtErstattetCent)
+        val abgelehnt = Auswertung.summe(listOf(z(Kasse.DAK, ABGELEHNT, 4000, 0)))
+        assertEquals(0L, abgelehnt.offenCent)
+        assertEquals(4000L, abgelehnt.nichtErstattetCent)
+        val nur2025 = Auswertung.jeKasse(Auswertung.filtern(zeilen, 2025, null, null)).getValue(Kasse.VKB)
+        assertEquals(15000L, nur2025.nichtErstattetCent)
+        assertEquals(0L, Auswertung.jeKasse(Auswertung.filtern(zeilen, 2026, null, null)).getValue(Kasse.VKB).nichtErstattetCent)
+    }
 }

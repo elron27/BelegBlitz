@@ -7,6 +7,7 @@
     <string name="new_invoice">New invoice</string>
     <string name="settings">Settings</string>
     <string name="back">Back</string>
+    <string name="more_options">More options</string>
     <string name="vkb_title">VKB contribution history</string>
     <string name="vkb_hint">Monthly contribution and the date it applies from. Several entries form a history.</string>
     <string name="vkb_amount">Monthly amount (EUR)</string>
@@ -75,6 +76,13 @@
     <string name="vkb_rest_hint">Not refunded by DAK. Submit the remaining %1$s to VKB?</string>
     <string name="create_submission">Create %1$s submission (%2$s)</string>
     <string name="submission_amount">Submitted amount: %1$s</string>
+    <string name="enter_refund">Enter / change refund</string>
+    <string name="refund_dialog_title">Refund without notice</string>
+    <string name="refund_amount_field">Refunded amount (EUR)</string>
+    <string name="notices_section">Notices</string>
+    <string name="notice_heading">%1$s notice of %2$s</string>
+    <string name="notice_document_missing">The document of this notice is missing.</string>
+    <string name="notice_pdf_error">The notice cannot be displayed.</string>
     <string name="refunded_amount">Refunded: %1$s</string>
     <string name="notice_amount">Notice: %1$s</string>
     <string name="submitted_document">Submitted document: %1$s</string>
@@ -150,4 +158,20 @@
     <string name="restore_confirm_title">Replace existing data?</string>
     <string name="restore_confirm_text">This app already contains data. Restoring replaces all invoices, notices and documents with the contents of the chosen folder.</string>
     <string name="restore_confirm_yes">Replace</string>
+    <string name="pick_date">Pick date from calendar</string>
+    <string name="detected_dates">Detected dates</string>
+    <string name="date_ok">OK</string>
+    <string name="sum_not_refunded">Not refunded</string>
+    <string name="group_submitted">submitted</string>
+    <string name="group_refunded">refunded</string>
+    <string name="group_open">open</string>
+    <string name="group_not_refunded">not refunded</string>
+    <string name="filter_chip">Filter: %1$s · %2$s</string>
+    <string name="filter_chip_year">Filter: %1$s · %2$s · %3$s</string>
+    <string name="filter_remove">Remove filter</string>
+    <string name="filter_empty">No invoices match this filter.</string>
+    <string name="tab_notices">Notices</string>
+    <string name="notices_empty">No notices captured yet.</string>
+    <string name="notice_no_invoices">No invoice assigned</string>
+    <string name="notice_card_title">%1$s · %2$s</string>
 </resources>

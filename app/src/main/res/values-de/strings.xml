@@ -7,6 +7,7 @@
     <string name="new_invoice">Neue Rechnung</string>
     <string name="settings">Einstellungen</string>
     <string name="back">Zurück</string>
+    <string name="more_options">Weitere Optionen</string>
     <string name="vkb_title">VKB-Beitragsverlauf</string>
     <string name="vkb_hint">Monatsbeitrag und das Datum, ab dem er gilt. Mehrere Einträge bilden einen Verlauf.</string>
     <string name="vkb_amount">Monatsbeitrag (EUR)</string>
@@ -75,6 +76,13 @@
     <string name="vkb_rest_hint">Von der DAK nicht erstattet. Restbetrag %1$s bei der VKB einreichen?</string>
     <string name="create_submission">%1$s-Einreichung anlegen (%2$s)</string>
     <string name="submission_amount">Eingereichter Betrag: %1$s</string>
+    <string name="enter_refund">Erstattung eintragen / ändern</string>
+    <string name="refund_dialog_title">Erstattung ohne Bescheid</string>
+    <string name="refund_amount_field">Erstatteter Betrag (EUR)</string>
+    <string name="notices_section">Bescheide</string>
+    <string name="notice_heading">Bescheid %1$s vom %2$s</string>
+    <string name="notice_document_missing">Das Dokument dieses Bescheids fehlt.</string>
+    <string name="notice_pdf_error">Der Bescheid lässt sich nicht darstellen.</string>
     <string name="refunded_amount">Erstattet: %1$s</string>
     <string name="notice_amount">Bescheid: %1$s</string>
     <string name="submitted_document">Eingereichtes Dokument: %1$s</string>
@@ -150,4 +158,20 @@
     <string name="restore_confirm_title">Vorhandene Daten ersetzen?</string>
     <string name="restore_confirm_text">In der App sind schon Daten vorhanden. Die Wiederherstellung ersetzt alle Rechnungen, Bescheide und Dokumente durch den Inhalt des gewählten Ordners.</string>
     <string name="restore_confirm_yes">Ersetzen</string>
+    <string name="pick_date">Datum im Kalender wählen</string>
+    <string name="detected_dates">Erkannte Daten</string>
+    <string name="date_ok">OK</string>
+    <string name="sum_not_refunded">Nicht erstattet</string>
+    <string name="group_submitted">eingereicht</string>
+    <string name="group_refunded">erstattet</string>
+    <string name="group_open">offen</string>
+    <string name="group_not_refunded">nicht erstattet</string>
+    <string name="filter_chip">Filter: %1$s · %2$s</string>
+    <string name="filter_chip_year">Filter: %1$s · %2$s · %3$s</string>
+    <string name="filter_remove">Filter entfernen</string>
+    <string name="filter_empty">Keine Rechnungen für diesen Filter.</string>
+    <string name="tab_notices">Bescheide</string>
+    <string name="notices_empty">Noch keine Bescheide erfasst.</string>
+    <string name="notice_no_invoices">Keiner Rechnung zugeordnet</string>
+    <string name="notice_card_title">%1$s · %2$s</string>
 </resources>

@@ -43,6 +43,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import de.belegblitz.BuildConfig
 import de.belegblitz.R
+import de.belegblitz.ui.ZurueckKnopf
 import de.belegblitz.data.update.AppUpdater
 import de.belegblitz.domain.Sperre
 import kotlinx.coroutines.launch
@@ -103,7 +104,7 @@ fun SettingsScreen(vm: SettingsViewModel, onBack: () -> Unit) {
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.settings)) },
-                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
+                navigationIcon = { ZurueckKnopf(onClick = onBack) },
             )
         },
     ) { padding ->

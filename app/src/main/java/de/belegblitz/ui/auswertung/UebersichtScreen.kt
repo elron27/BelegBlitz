@@ -1,5 +1,6 @@
 package de.belegblitz.ui.auswertung
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,7 +15,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -28,11 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.belegblitz.AppContainer
 import de.belegblitz.R
+import de.belegblitz.ui.ZurueckKnopf
 import de.belegblitz.domain.Auswertung
 import de.belegblitz.domain.AuswertungsZeile
 import de.belegblitz.domain.BeitragsEintrag
 import de.belegblitz.domain.Geld
 import de.belegblitz.domain.Kasse
+import de.belegblitz.domain.StatusGruppe
 import de.belegblitz.domain.VkbJahresbilanz
 import java.time.LocalDate
 
@@ -41,7 +43,11 @@ import java.time.LocalDate
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UebersichtScreen(container: AppContainer, onBack: () -> Unit) {
+fun UebersichtScreen(
+    container: AppContainer,
+    onBack: () -> Unit,
+    onZeile: (Kasse, Int?, StatusGruppe) -> Unit,
+) {
     val db = container.db
     val rechnungen by remember { db.rechnungDao().alle() }.collectAsStateWithLifecycle(emptyList())
     val einreichungen by remember { db.einreichungDao().alle() }.collectAsStateWithLifecycle(emptyList())
@@ -53,7 +59,7 @@ fun UebersichtScreen(container: AppContainer, onBack: () -> Unit) {
             val jeId = rechnungen.associateBy { it.id }
             einreichungen.mapNotNull { e ->
                 val r = jeId[e.rechnungId] ?: return@mapNotNull null
-                AuswertungsZeile(r.personId, r.rechnungsdatum.year, e.kasse, e.status, e.betragCent, e.erstatteterBetragCent)
+                AuswertungsZeile(r.personId, r.rechnungsdatum.year, e.kasse, e.status, e.betragCent, e.erstatteterBetragCent, r.id)
             }
         }
     }
@@ -68,7 +74,7 @@ fun UebersichtScreen(container: AppContainer, onBack: () -> Unit) {
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.overview_title)) },
-                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
+                navigationIcon = { ZurueckKnopf(onClick = onBack) },
             )
         },
     ) { padding ->
@@ -104,9 +110,12 @@ fun UebersichtScreen(container: AppContainer, onBack: () -> Unit) {
                     Card(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(k.name, style = MaterialTheme.typography.titleMedium)
-                            ZeileBetrag(R.string.sum_submitted, s.eingereichtCent)
-                            ZeileBetrag(R.string.sum_refunded, s.erstattetCent)
-                            ZeileBetrag(R.string.sum_open, s.offenCent)
+                            // SR-75f859f5adc5: Zeilen öffnen die gefilterte Rechnungsliste
+                            ZeileBetrag(R.string.sum_submitted, s.eingereichtCent) { onZeile(k, jahr, StatusGruppe.EINGEREICHT) }
+                            ZeileBetrag(R.string.sum_refunded, s.erstattetCent) { onZeile(k, jahr, StatusGruppe.ERSTATTET) }
+                            ZeileBetrag(R.string.sum_open, s.offenCent) { onZeile(k, jahr, StatusGruppe.OFFEN) }
+                            // SR-d840886a42a1: nicht erstattet (abgelehnt / Rest bei Teilerstattung)
+                            ZeileBetrag(R.string.sum_not_refunded, s.nichtErstattetCent) { onZeile(k, jahr, StatusGruppe.NICHT_ERSTATTET) }
                         }
                     }
                 }
@@ -141,8 +150,9 @@ fun UebersichtScreen(container: AppContainer, onBack: () -> Unit) {
 }
 
 @Composable
-private fun ZeileBetrag(label: Int, cent: Long) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+private fun ZeileBetrag(label: Int, cent: Long, onClick: (() -> Unit)? = null) {
+    val m = if (onClick != null) Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 4.dp) else Modifier.fillMaxWidth()
+    Row(m, horizontalArrangement = Arrangement.SpaceBetween) {
         Text(stringResource(label))
         Text(Geld.formatEuro(cent), style = MaterialTheme.typography.titleSmall)
     }

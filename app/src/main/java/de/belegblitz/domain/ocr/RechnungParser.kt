@@ -10,10 +10,12 @@ data class RechnungErgebnis(
     val fachrichtung: Wert<String>? = null,
     val datum: Wert<LocalDate>? = null,
     val betragCent: Wert<Long>? = null,
+    /** SR-306dc2: alle erkannten Daten, eindeutig, in Dokumentreihenfolge. */
+    val datumKandidaten: List<LocalDate> = emptyList(),
 ) {
     /** Übersetzt in den Vorschlag für den Prüfbildschirm; [ocrText] wird mit der Rechnung gespeichert (SR-84e9478a8eb5). */
     fun alsVorschlag(ocrText: String?): RechnungVorschlag = RechnungVorschlag(
-        praxis = praxis?.wert, fachrichtung = fachrichtung?.wert, datum = datum?.wert, betragCent = betragCent?.wert,
+        praxis = praxis?.wert, fachrichtung = fachrichtung?.wert, datum = datum?.wert, datumKandidaten = datumKandidaten, betragCent = betragCent?.wert,
         unsicher = buildSet {
             if (praxis?.sicher == false) add(VorschlagFeld.PRAXIS)
             if (fachrichtung?.sicher == false) add(VorschlagFeld.FACHRICHTUNG)
@@ -36,7 +38,7 @@ object RechnungParser {
     fun auswerten(seiten: List<String>): RechnungErgebnis {
         val text = seiten.joinToString("\n")
         val zeilen = OcrWerkzeug.zeilen(text)
-        return RechnungErgebnis(praxis(zeilen), Fachrichtungen.erkennen(text), datum(zeilen), betrag(zeilen))
+        return RechnungErgebnis(praxis(zeilen), Fachrichtungen.erkennen(text), datum(zeilen), betrag(zeilen), datumKandidaten(zeilen))
     }
 
     /** Praxis: erste Zeile im Briefkopf, die nach Praxis/MVZ/Arztname aussieht; sonst die erste Textzeile (unsicher). */
@@ -52,6 +54,10 @@ object RechnungParser {
     /** Rechtsform am Ende fällt weg ("MVZ Chiemgau lacht GmbH" -> "MVZ Chiemgau lacht"), sie gehört nicht in den Titel. */
     private fun ohneRechtsform(name: String): String =
         name.trimEnd(',', ';').replace(Regex("""[\s,]+(GmbH(\s*&\s*Co\.?\s*KG)?|mbH|GbR|PartG(\s*mbB)?|AG|e\.\s?V\.|UG(\s*\(haftungsbeschränkt\))?)$""", RegexOption.IGNORE_CASE), "")
+
+    /** SR-306dc2: alle gültigen Daten (TT.MM.JJJJ, TT.MM.JJ) ohne Doppelte in Dokumentreihenfolge. */
+    internal fun datumKandidaten(zeilen: List<String>): List<LocalDate> =
+        zeilen.flatMap { OcrWerkzeug.daten(it) }.distinct()
 
     /** Datum: hinter "Rechnungsdatum"/"Datum:"; sonst das erste Datum, das keine Zahlungsfrist ist (unsicher). */
     internal fun datum(zeilen: List<String>): Wert<LocalDate>? {

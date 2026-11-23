@@ -14,6 +14,8 @@ data class RechnungVorschlag(
     val praxis: String? = null,
     val fachrichtung: String? = null,
     val datum: LocalDate? = null,
+    /** SR-306dc2: alle erkannten Daten, eindeutig, in Dokumentreihenfolge (zur Auswahl im Prüfbildschirm). */
+    val datumKandidaten: List<LocalDate> = emptyList(),
     val betragCent: Long? = null,
     val unsicher: Set<VorschlagFeld> = emptySet(),
     val ocrText: String? = null,

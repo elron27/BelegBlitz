@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import kotlinx.coroutines.flow.map
+import de.belegblitz.domain.BescheidAnsicht
+import de.belegblitz.domain.BescheidKopf
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.belegblitz.AppContainer
 import de.belegblitz.R
+import de.belegblitz.ui.ZurueckKnopf
 import de.belegblitz.data.PdfWerkzeug
 import de.belegblitz.domain.Geld
 import de.belegblitz.domain.RechnungEingabe
@@ -49,11 +53,14 @@ fun InvoiceDetailScreen(container: AppContainer, id: Long, onBack: () -> Unit) {
             }
         }
     }
+    val bescheide by remember(id) {
+        container.db.bescheidDao().jeRechnung(id).map { l -> BescheidAnsicht.fuerRechnung(l.map { BescheidKopf(it.id, it.kasse, it.datum, it.dokumentPfad) }) }
+    }.collectAsStateWithLifecycle(emptyList())
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(rechnung?.titel.orEmpty()) },
-                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
+                title = { Text(de.belegblitz.domain.Titel.fuerAnzeige(rechnung?.titel.orEmpty())) },
+                navigationIcon = { ZurueckKnopf(onClick = onBack) },
             )
         },
     ) { padding ->
@@ -84,6 +91,40 @@ fun InvoiceDetailScreen(container: AppContainer, id: Long, onBack: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(), contentScale = ContentScale.FillWidth,
                 )
             }
+            // SR-9f0a44b25efd: zugeordnete Bescheide unter der Rechnung
+            items(bescheide, key = { "bescheid_${it.id}" }) { b -> BescheidVorschau(container, b) }
+        }
+    }
+}
+
+/** SR-9f0a44b25efd: Überschrift mit Kasse und Datum, darunter die Seiten des Bescheid-Dokuments. */
+@Composable
+private fun BescheidVorschau(container: AppContainer, b: BescheidKopf) {
+    val name = b.dokumentPfad?.takeIf { it.isNotBlank() }
+    val seiten by produceState<List<Bitmap>?>(null, name) {
+        if (name == null) return@produceState
+        value = withContext(Dispatchers.IO) {
+            try {
+                PdfWerkzeug.pdfSeiten(container.pdfDatei(name), 1080)
+            } catch (e: Exception) {
+                Log.e("Detail", "Bescheid nicht darstellbar: $name", e)
+                emptyList()
+            }
+        }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            stringResource(R.string.notice_heading, b.kasse.name, b.datum.format(RechnungEingabe.DatumFormat)),
+            style = MaterialTheme.typography.titleSmall,
+        )
+        if (name == null) Text(stringResource(R.string.notice_document_missing))
+        val bilder = seiten
+        if (name != null && bilder != null && bilder.isEmpty()) Text(stringResource(R.string.notice_pdf_error))
+        bilder.orEmpty().forEach { bmp ->
+            Image(
+                bmp.asImageBitmap(), contentDescription = null,
+                modifier = Modifier.fillMaxWidth(), contentScale = ContentScale.FillWidth,
+            )
         }
     }
 }
