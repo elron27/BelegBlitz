@@ -13,7 +13,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.belegblitz.AppContainer
 import de.belegblitz.R
+import de.belegblitz.ui.ZurueckKnopf
 import de.belegblitz.data.PdfWerkzeug
 import de.belegblitz.domain.Geld
 import de.belegblitz.domain.RechnungEingabe
@@ -53,7 +53,7 @@ fun InvoiceDetailScreen(container: AppContainer, id: Long, onBack: () -> Unit) {
         topBar = {
             TopAppBar(
                 title = { Text(rechnung?.titel.orEmpty()) },
-                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
+                navigationIcon = { ZurueckKnopf(onClick = onBack) },
             )
         },
     ) { padding ->

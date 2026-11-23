@@ -28,4 +28,11 @@ object Titel {
         }
         return sb.toString().replace(Regex("-+"), "-").trim('-')
     }
+
+    /**
+     * SR-010571e2f9d9 (SR-e2f9d9): Anzeige-Variante des Titels. Nach `_` und `-` steht ein Zero-Width-Space (U+200B),
+     * damit die Liste nur dort umbrechen kann und nie mitten im Wort. Der gespeicherte Titel bleibt unverändert.
+     */
+    fun fuerAnzeige(titel: String): String =
+        titel.replace("_", "_​").replace("-", "-​")
 }

@@ -7,6 +7,7 @@
     <string name="new_invoice">Neue Rechnung</string>
     <string name="settings">Einstellungen</string>
     <string name="back">Zurück</string>
+    <string name="more_options">Weitere Optionen</string>
     <string name="vkb_title">VKB-Beitragsverlauf</string>
     <string name="vkb_hint">Monatsbeitrag und das Datum, ab dem er gilt. Mehrere Einträge bilden einen Verlauf.</string>
     <string name="vkb_amount">Monatsbeitrag (EUR)</string>

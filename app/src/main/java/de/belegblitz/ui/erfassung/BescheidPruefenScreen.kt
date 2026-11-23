@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.belegblitz.R
+import de.belegblitz.ui.ZurueckKnopf
 import de.belegblitz.data.Rechnung
 import de.belegblitz.domain.Geld
 import de.belegblitz.domain.Kasse
@@ -61,7 +62,7 @@ fun BescheidPruefenScreen(erfassung: ErfassungViewModel, vm: BescheidViewModel, 
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.notice_title)) },
-                navigationIcon = { TextButton(onClick = { vm.zuruecksetzen(); onZurueck() }) { Text(stringResource(R.string.back)) } },
+                navigationIcon = { ZurueckKnopf(onClick = { vm.zuruecksetzen(); onZurueck() }) },
             )
         },
     ) { padding ->

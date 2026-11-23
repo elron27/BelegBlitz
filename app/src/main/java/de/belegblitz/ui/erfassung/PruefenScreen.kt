@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.belegblitz.R
+import de.belegblitz.ui.ZurueckKnopf
 import de.belegblitz.domain.RechnungEingabe
 import de.belegblitz.domain.Unsicherheit
 import de.belegblitz.domain.VorschlagFeld
@@ -65,7 +65,7 @@ fun PruefenScreen(vm: ErfassungViewModel, onZurueck: () -> Unit, onGespeichert: 
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.review_title)) },
-                navigationIcon = { TextButton(onClick = onZurueck) { Text(stringResource(R.string.back)) } },
+                navigationIcon = { ZurueckKnopf(onClick = onZurueck) },
             )
         },
     ) { padding ->

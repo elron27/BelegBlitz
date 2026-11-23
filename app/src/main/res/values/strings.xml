@@ -7,6 +7,7 @@
     <string name="new_invoice">New invoice</string>
     <string name="settings">Settings</string>
     <string name="back">Back</string>
+    <string name="more_options">More options</string>
     <string name="vkb_title">VKB contribution history</string>
     <string name="vkb_hint">Monthly contribution and the date it applies from. Several entries form a history.</string>
     <string name="vkb_amount">Monthly amount (EUR)</string>
