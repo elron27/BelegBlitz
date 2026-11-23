@@ -10,6 +10,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import de.belegblitz.domain.StatusEtikett
+import kotlin.math.roundToInt
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.belegblitz.AppContainer
 import de.belegblitz.R
-import de.belegblitz.ui.ZurueckKnopf
+import de.belegblitz.domain.Reiter
+import de.belegblitz.ui.ReiterLeiste
+import de.belegblitz.ui.UeberlaufMenue
 import de.belegblitz.domain.Auswertung
 import de.belegblitz.domain.AuswertungsZeile
 import de.belegblitz.domain.BeitragsEintrag
@@ -45,7 +54,8 @@ import java.time.LocalDate
 @Composable
 fun UebersichtScreen(
     container: AppContainer,
-    onBack: () -> Unit,
+    onReiter: (Reiter) -> Unit,
+    onSettings: () -> Unit,
     onZeile: (Kasse, Int?, StatusGruppe) -> Unit,
 ) {
     val db = container.db
@@ -74,9 +84,10 @@ fun UebersichtScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.overview_title)) },
-                navigationIcon = { ZurueckKnopf(onClick = onBack) },
+                actions = { UeberlaufMenue(onSettings) },
             )
         },
+        bottomBar = { ReiterLeiste(Reiter.UEBERSICHT, onReiter) },
     ) { padding ->
         LazyColumn(
             Modifier.padding(padding).padding(horizontal = 16.dp),
@@ -108,8 +119,17 @@ fun UebersichtScreen(
                 item(key = k.name) {
                     val s = summen.getValue(k)
                     Card(Modifier.fillMaxWidth()) {
-                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(k.name, style = MaterialTheme.typography.titleMedium)
+                            // SR-17cd13ad9ebd: große Zahl „Erstattet“ und Fortschrittsbalken erstattet/eingereicht
+                            Text(stringResource(R.string.sum_refunded), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(Geld.formatEuro(s.erstattetCent), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                            val anteil = StatusEtikett.fortschritt(s.erstattetCent, s.eingereichtCent)
+                            val prozent = stringResource(R.string.label_progress, (anteil * 100).roundToInt())
+                            LinearProgressIndicator(
+                                progress = { anteil },
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).semantics { contentDescription = prozent },
+                            )
                             // SR-75f859f5adc5: Zeilen öffnen die gefilterte Rechnungsliste
                             ZeileBetrag(R.string.sum_submitted, s.eingereichtCent) { onZeile(k, jahr, StatusGruppe.EINGEREICHT) }
                             ZeileBetrag(R.string.sum_refunded, s.erstattetCent) { onZeile(k, jahr, StatusGruppe.ERSTATTET) }
@@ -129,15 +149,18 @@ fun UebersichtScreen(
                     bilanzJahr, verlauf.map { BeitragsEintrag(it.gueltigAb, it.monatsbetragCent) },
                     Auswertung.summe(vkb).erstattetCent, heute,
                 )
-                Card(Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                val container = if (b.hereingeholt) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
+                val onContainer = if (b.hereingeholt) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
+                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = container, contentColor = onContainer)) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(stringResource(R.string.vkb_balance_title, b.jahr), style = MaterialTheme.typography.titleMedium)
                         if (b.laufendesJahr) {
                             Text(stringResource(R.string.vkb_balance_running, b.monate), style = MaterialTheme.typography.bodySmall)
                         }
                         ZeileBetrag(R.string.vkb_contributions, b.beitraegeCent)
                         ZeileBetrag(R.string.vkb_refunds, b.erstattetCent)
-                        ZeileBetrag(R.string.vkb_difference, b.differenzCent)
+                        Text(stringResource(R.string.vkb_difference), style = MaterialTheme.typography.labelMedium)
+                        Text(Geld.formatEuro(b.differenzCent), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                         Text(
                             stringResource(if (b.hereingeholt) R.string.vkb_recovered_yes else R.string.vkb_recovered_no),
                             style = MaterialTheme.typography.titleSmall,

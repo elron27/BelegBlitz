@@ -7,10 +7,14 @@ import org.junit.Test
 import java.io.File
 
 /** SR-daf053d403cc (SR-d403cc): Quelltext-Prüfungen für den gemeinsamen Zurück-Knopf (Gradle-Arbeitsverzeichnis: app/). */
+/**
+ * Übersicht und Suche sind seit SR-1571303342c4 Hauptziele mit unterer Leiste und haben keinen Zurück-Pfeil mehr;
+ * sie sind deshalb nicht mehr in der Liste. Die Bescheid-Ansicht (SR-70a2f4475fe0) ist neu dabei.
+ */
 class ZurueckKnopfTest {
     private val ui = File("src/main/java/de/belegblitz/ui")
     private val screens = listOf(
-        "detail/InvoiceDetailScreen.kt", "auswertung/UebersichtScreen.kt", "auswertung/SucheScreen.kt",
+        "detail/InvoiceDetailScreen.kt", "detail/BescheidAnsichtScreen.kt",
         "settings/SettingsScreen.kt", "erfassung/PruefenScreen.kt", "erfassung/BescheidPruefenScreen.kt",
     )
 
@@ -33,6 +37,6 @@ class ZurueckKnopfTest {
             assertTrue(s, q.contains("ZurueckKnopf("))
             assertFalse(s, q.contains("Text(stringResource(R.string.back))"))
         }
-        assertEquals(6, screens.size)
+        assertEquals(5, screens.size)
     }
 }

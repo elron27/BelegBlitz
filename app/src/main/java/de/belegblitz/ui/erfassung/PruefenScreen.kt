@@ -3,10 +3,11 @@ package de.belegblitz.ui.erfassung
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.FilterChip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextButton
@@ -105,7 +106,7 @@ fun PruefenScreen(vm: ErfassungViewModel, onZurueck: () -> Unit, onGespeichert: 
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 trailingIcon = {
                     IconButton(onClick = { kalender = true }) {
-                        Icon(painterResource(R.drawable.ic_calendar), stringResource(R.string.pick_date))
+                        Icon(Icons.Filled.CalendarMonth, stringResource(R.string.pick_date))
                     }
                 },
             )

@@ -174,4 +174,13 @@
     <string name="notices_empty">No notices captured yet.</string>
     <string name="notice_no_invoices">No invoice assigned</string>
     <string name="notice_card_title">%1$s · %2$s</string>
+    <string name="notice_open_external">Open externally</string>
+    <string name="notice_invoices_heading">Assigned invoices</string>
+    <string name="notice_not_found">This notice no longer exists.</string>
+    <string name="empty_invoices_title">No invoices yet</string>
+    <string name="empty_first_invoice">Capture first invoice</string>
+    <string name="empty_notices_title">No notices yet</string>
+    <string name="empty_search_title">Nothing found</string>
+    <string name="label_progress">%1$d%% of submitted amount refunded</string>
+    <string name="invoice_meta">%1$s · %2$s</string>
 </resources>

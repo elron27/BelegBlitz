@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,12 +33,11 @@ import de.belegblitz.domain.BescheidKopf
 import de.belegblitz.domain.RechnungEingabe
 import de.belegblitz.domain.Reiter
 import de.belegblitz.domain.Titel
-import de.belegblitz.ui.detail.dokumentOeffnen
 
 /** SR-1d598be18236: alle Bescheide, neueste zuerst, mit Kasse, Datum und zugeordneten Rechnungen. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BescheideScreen(container: AppContainer, onRechnungen: () -> Unit) {
+fun BescheideScreen(container: AppContainer, onReiter: (Reiter) -> Unit, onSettings: () -> Unit, onOeffnen: (Long) -> Unit) {
     val db = container.db
     val bescheide by remember { db.bescheidDao().alleNeuesteZuerst() }.collectAsStateWithLifecycle(emptyList())
     val positionen by remember { db.bescheidDao().allePositionen() }.collectAsStateWithLifecycle(emptyList())
@@ -47,14 +47,13 @@ fun BescheideScreen(container: AppContainer, onRechnungen: () -> Unit) {
         bescheide.map { BescheidKopf(it.id, it.kasse, it.datum, it.dokumentPfad) },
         positionen.map { it.bescheidId to it.rechnungId },
     )
-    val context = LocalContext.current
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.tab_notices)) }) },
-        bottomBar = { ReiterLeiste(Reiter.BESCHEIDE, onRechnungen = onRechnungen, onBescheide = {}) },
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.tab_notices)) }, actions = { UeberlaufMenue(onSettings) }) },
+        bottomBar = { ReiterLeiste(Reiter.BESCHEIDE, onReiter) },
     ) { padding ->
         if (karten.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding).padding(32.dp), contentAlignment = Alignment.Center) {
-                Text(stringResource(R.string.notices_empty), textAlign = TextAlign.Center)
+                LeererZustand(Icons.Filled.Inventory2, stringResource(R.string.empty_notices_title), stringResource(R.string.notices_empty))
             }
         } else {
             LazyColumn(
@@ -63,10 +62,8 @@ fun BescheideScreen(container: AppContainer, onRechnungen: () -> Unit) {
             ) {
                 items(karten, key = { it.bescheid.id }) { k ->
                     val b = k.bescheid
-                    val m = if (BescheidAnsicht.kannOeffnen(b)) {
-                        Modifier.fillMaxWidth().clickable { dokumentOeffnen(context, container.pdfDatei(b.dokumentPfad!!)) }
-                    } else Modifier.fillMaxWidth()
-                    Card(m) {
+                    // SR-70a2f4475fe0 Kriterium 1: Klick öffnet die Bescheid-Ansicht
+                    Card(Modifier.fillMaxWidth().clickable { onOeffnen(b.id) }) {
                         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
                                 stringResource(R.string.notice_card_title, b.kasse.name, b.datum.format(RechnungEingabe.DatumFormat)),

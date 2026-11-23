@@ -11,7 +11,8 @@ class BescheidAnsichtTest {
         BescheidKopf(id, Kasse.DAK, LocalDate.of(2026, 3, tag), pfad)
 
     @Test fun `SR-1d598be18236 AC1 Reiter Rechnungen und Bescheide`() =
-        assertEquals(listOf(Reiter.RECHNUNGEN, Reiter.BESCHEIDE), Reiter.entries)
+        // seit SR-1571303342c4 stehen Übersicht und Suche dahinter
+        assertEquals(listOf(Reiter.RECHNUNGEN, Reiter.BESCHEIDE), Reiter.entries.take(2))
 
     @Test fun `SR-1d598be18236 AC2 neueste zuerst mit zugeordneten Rechnungen`() {
         val karten = BescheidAnsicht.karten(

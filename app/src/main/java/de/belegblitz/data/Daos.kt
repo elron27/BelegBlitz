@@ -86,6 +86,14 @@ interface BescheidDao {
     @Query("SELECT * FROM Bescheid")
     fun alle(): Flow<List<Bescheid>>
 
+    /** SR-70a2f4475fe0: ein Bescheid für die Bescheid-Ansicht. */
+    @Query("SELECT * FROM Bescheid WHERE id = :id")
+    fun finde(id: Long): Flow<Bescheid?>
+
+    /** SR-70a2f4475fe0: Positionen eines Bescheids (Rechnung und Betrag). */
+    @Query("SELECT * FROM BescheidPosition WHERE bescheidId = :bescheidId ORDER BY id")
+    fun positionenJeBescheid(bescheidId: Long): Flow<List<BescheidPosition>>
+
     /** SR-1d598be18236: Bescheide-Reiter, neueste zuerst. */
     @Query("SELECT * FROM Bescheid ORDER BY datum DESC, id DESC")
     fun alleNeuesteZuerst(): Flow<List<Bescheid>>

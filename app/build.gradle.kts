@@ -14,8 +14,8 @@ android {
         applicationId = "de.belegblitz"
         minSdk = 30
         targetSdk = 36
-        versionCode = 3
-        versionName = "2.0.0"
+        versionCode = 4
+        versionName = "2.1.0"
     }
 
     // Signaturschlüssel liegt außerhalb von Git in signing/keystore.properties
@@ -60,6 +60,7 @@ dependencies {
     implementation(composeBom)
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
 

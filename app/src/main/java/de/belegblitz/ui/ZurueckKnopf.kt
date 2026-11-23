@@ -1,14 +1,15 @@
 package de.belegblitz.ui
 
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import de.belegblitz.R
 
@@ -19,8 +20,7 @@ val TitelleistenKnopfGroesse = 48.dp
 @Composable
 fun ZurueckKnopf(onClick: () -> Unit) {
     val beschreibung = stringResource(R.string.back)
-    // material-icons-core ist nicht eingebunden; Pfeil als Text, damit keine neue Abhängigkeit nötig ist.
     IconButton(onClick = onClick, modifier = Modifier.size(TitelleistenKnopfGroesse).semantics { contentDescription = beschreibung }) {
-        Text("←", fontSize = 24.sp)
+        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
     }
 }

@@ -2,8 +2,16 @@ package de.belegblitz.domain
 
 import java.time.LocalDate
 
-/** SR-1d598be18236: Reiter der unteren Leiste. */
-enum class Reiter { RECHNUNGEN, BESCHEIDE }
+/**
+ * SR-1d598be18236, SR-1571303342c4: Hauptziele der unteren Leiste in fester Reihenfolge; [route] ist die Navigationsroute
+ * (muss zu `Routes` passen, siehe Test).
+ */
+enum class Reiter(val route: String) {
+    RECHNUNGEN("liste"), BESCHEIDE("bescheide"), UEBERSICHT("uebersicht"), SUCHE("suche"),
+}
+
+/** SR-70a2f4475fe0: eine Rechnung eines Bescheids mit der Summe ihrer Positionen. */
+data class BescheidRechnungZeile(val rechnungId: Long, val betragCent: Long)
 
 data class BescheidKopf(val id: Long, val kasse: Kasse, val datum: LocalDate, val dokumentPfad: String?)
 
@@ -27,4 +35,14 @@ object BescheidAnsicht {
 
     /** Nur ein Bescheid mit Dokument lässt sich öffnen. */
     fun kannOeffnen(b: BescheidKopf) = !b.dokumentPfad.isNullOrBlank()
+
+    /**
+     * SR-70a2f4475fe0 (Kriterium 2): zugeordnete Rechnungen eines Bescheids; mehrere Positionen derselben Rechnung
+     * werden summiert, die Reihenfolge folgt dem ersten Auftreten. Paare sind (Rechnungs-Id, Betrag in Cent).
+     */
+    fun rechnungsZeilen(positionen: List<Pair<Long, Long>>): List<BescheidRechnungZeile> =
+        positionen.groupBy({ it.first }, { it.second }).map { (id, betraege) -> BescheidRechnungZeile(id, betraege.sum()) }
+
+    /** SR-70a2f4475fe0: Gesamtbetrag aller Positionen. */
+    fun summe(zeilen: List<BescheidRechnungZeile>): Long = zeilen.sumOf { it.betragCent }
 }
