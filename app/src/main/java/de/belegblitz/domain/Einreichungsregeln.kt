@@ -34,6 +34,9 @@ object Einreichungsregeln {
     fun statusNachBetragsaenderung(status: EinreichungStatus, neuerBetragCent: Long, erstattetCent: Long?): EinreichungStatus =
         if (erstattetCent == null) status else StatusAbleitung.ausErstattung(neuerBetragCent, erstattetCent)
 
+    /** SR-bb429d971190 siehe [ManuelleErstattung]: Erstattung von Hand nur für bereits eingereichte Einreichungen. */
+    fun kannErstattungEintragen(status: EinreichungStatus) = status != EinreichungStatus.ERFASST
+
     /** SR-d2f03abf6d13 (Kriterium 1): bei der DAK abgelehnt oder nur teilweise erstattet -> VKB anbieten. */
     fun vkbAnbieten(dakStatus: EinreichungStatus) =
         dakStatus == EinreichungStatus.ABGELEHNT || dakStatus == EinreichungStatus.TEILWEISE_ERSTATTET

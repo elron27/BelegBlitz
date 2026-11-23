@@ -76,6 +76,13 @@
     <string name="vkb_rest_hint">Not refunded by DAK. Submit the remaining %1$s to VKB?</string>
     <string name="create_submission">Create %1$s submission (%2$s)</string>
     <string name="submission_amount">Submitted amount: %1$s</string>
+    <string name="enter_refund">Enter / change refund</string>
+    <string name="refund_dialog_title">Refund without notice</string>
+    <string name="refund_amount_field">Refunded amount (EUR)</string>
+    <string name="notices_section">Notices</string>
+    <string name="notice_heading">%1$s notice of %2$s</string>
+    <string name="notice_document_missing">The document of this notice is missing.</string>
+    <string name="notice_pdf_error">The notice cannot be displayed.</string>
     <string name="refunded_amount">Refunded: %1$s</string>
     <string name="notice_amount">Notice: %1$s</string>
     <string name="submitted_document">Submitted document: %1$s</string>

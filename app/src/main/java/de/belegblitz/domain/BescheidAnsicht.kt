@@ -18,6 +18,13 @@ object BescheidAnsicht {
             BescheidKarte(b, positionen.filter { it.first == b.id }.map { it.second }.distinct())
         }
 
+    /**
+     * SR-9f0a44b25efd (Kriterien 1 und 2): Bescheide einer Rechnung für die Detailansicht, jeder nur einmal,
+     * älteste zuerst (bei gleichem Datum nach Id).
+     */
+    fun fuerRechnung(bescheide: List<BescheidKopf>): List<BescheidKopf> =
+        bescheide.distinctBy { it.id }.sortedWith(compareBy<BescheidKopf> { it.datum }.thenBy { it.id })
+
     /** Nur ein Bescheid mit Dokument lässt sich öffnen. */
     fun kannOeffnen(b: BescheidKopf) = !b.dokumentPfad.isNullOrBlank()
 }

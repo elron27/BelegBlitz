@@ -76,6 +76,13 @@
     <string name="vkb_rest_hint">Von der DAK nicht erstattet. Restbetrag %1$s bei der VKB einreichen?</string>
     <string name="create_submission">%1$s-Einreichung anlegen (%2$s)</string>
     <string name="submission_amount">Eingereichter Betrag: %1$s</string>
+    <string name="enter_refund">Erstattung eintragen / ändern</string>
+    <string name="refund_dialog_title">Erstattung ohne Bescheid</string>
+    <string name="refund_amount_field">Erstatteter Betrag (EUR)</string>
+    <string name="notices_section">Bescheide</string>
+    <string name="notice_heading">Bescheid %1$s vom %2$s</string>
+    <string name="notice_document_missing">Das Dokument dieses Bescheids fehlt.</string>
+    <string name="notice_pdf_error">Der Bescheid lässt sich nicht darstellen.</string>
     <string name="refunded_amount">Erstattet: %1$s</string>
     <string name="notice_amount">Bescheid: %1$s</string>
     <string name="submitted_document">Eingereichtes Dokument: %1$s</string>

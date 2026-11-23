@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -38,6 +40,7 @@ import de.belegblitz.domain.EinreichungStatus
 import de.belegblitz.domain.Einreichungsregeln
 import de.belegblitz.domain.Geld
 import de.belegblitz.domain.Kasse
+import de.belegblitz.domain.ManuelleErstattung
 import de.belegblitz.domain.RechnungEingabe
 import kotlinx.coroutines.launch
 import java.time.DateTimeException
@@ -120,6 +123,14 @@ private fun EinreichungKarte(
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text(stringResource(R.string.mark_submitted)) }
             }
+            // SR-bb429d971190: Erstattung von Hand, nur für eingereichte Einreichungen
+            if (Einreichungsregeln.kannErstattungEintragen(e.status)) {
+                var dialog by remember { mutableStateOf(false) }
+                OutlinedButton(onClick = { dialog = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.enter_refund))
+                }
+                if (dialog) ErstattungDialog(e, { dialog = false }) { c -> dialog = false; tun("Erstattung") { speicher.erstattungManuell(e, c) } }
+            }
             if (e.einreichungsdatum != null) DatumFeld(e) { d -> tun("Datum") { speicher.datumAendern(e, d) } }
             HinweisFeld(e) { t -> tun("Hinweis") { speicher.hinweisAendern(e, t) } }
         }
@@ -142,6 +153,25 @@ internal fun dokumentOeffnen(context: Context, datei: File) {
         Log.e("Einreichung", "Dokument nicht zu öffnen: ${datei.name}", ex)
         Toast.makeText(context, R.string.open_document_failed, Toast.LENGTH_LONG).show()
     }
+}
+
+/** SR-bb429d971190: Dialog für den Erstattungsbetrag, 0 erlaubt. */
+@Composable
+private fun ErstattungDialog(e: Einreichung, schliessen: () -> Unit, speichern: (Long) -> Unit) {
+    var text by remember { mutableStateOf(e.erstatteterBetragCent?.let { "%d,%02d".format(it / 100, it % 100) }.orEmpty()) }
+    val cent = ManuelleErstattung.pruefen(text)
+    AlertDialog(
+        onDismissRequest = schliessen,
+        title = { Text(stringResource(R.string.refund_dialog_title)) },
+        text = {
+            OutlinedTextField(
+                text, { text = it }, singleLine = true, isError = cent == null,
+                label = { Text(stringResource(R.string.refund_amount_field)) },
+            )
+        },
+        confirmButton = { TextButton(onClick = { cent?.let(speichern) }, enabled = cent != null) { Text(stringResource(R.string.save)) } },
+        dismissButton = { TextButton(onClick = schliessen) { Text(stringResource(R.string.cancel)) } },
+    )
 }
 
 /** SR-7d1f8913431f: Betrag der Einreichung bearbeiten. */

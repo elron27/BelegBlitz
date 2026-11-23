@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import de.belegblitz.domain.EinreichungStatus
 import de.belegblitz.domain.Einreichungsregeln
 import de.belegblitz.domain.Kasse
+import de.belegblitz.domain.ManuelleErstattung
 import java.time.LocalDate
 
 /** SR-7d1f8913431f, SR-3273b2e9382d, SR-93cb9591c1a1: schreibende Abläufe rund um Einreichungen und Bescheide. */
@@ -37,6 +38,13 @@ class EinreichungSpeicher(private val db: AppDatabase) {
                 status = Einreichungsregeln.statusNachBetragsaenderung(e.status, betragCent, e.erstatteterBetragCent),
             ),
         )
+
+    /** SR-bb429d971190: Erstattung von Hand setzen (auch 0); Status folgt dem Betrag. Nicht für Status Erfasst. */
+    suspend fun erstattungManuell(e: Einreichung, erstattetCent: Long) {
+        if (!Einreichungsregeln.kannErstattungEintragen(e.status)) return
+        val r = ManuelleErstattung.uebernehmen(e.betragCent, erstattetCent)
+        db.einreichungDao().aktualisieren(e.copy(erstatteterBetragCent = r.erstattetCent, status = r.status))
+    }
 
     /** SR-a6fc7a6cdbe1 (Kriterium 2): Hinweistext bearbeiten oder selbst eintragen. */
     suspend fun hinweisAendern(e: Einreichung, text: String) =
