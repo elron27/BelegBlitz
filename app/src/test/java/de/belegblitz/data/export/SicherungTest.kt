@@ -127,3 +127,39 @@ class SicherungTest {
         assertTrue(q.contains("vm.bestandVorhanden()") && q.contains("restore_confirm_title"))
     }
 }
+
+/** Issue #17: Hinweis in der Sicherung. */
+class SicherungHinweisTest {
+    private fun sicherung(rechnungHinweis: String?, bescheidHinweis: String?) = Sicherung(
+        personen = listOf(Person(1, "Stefan")),
+        rechnungen = listOf(Rechnung(1, 1, "Praxis", "Hausarzt", LocalDate.of(2026, 3, 5), 100, "T", null, null, 1, rechnungHinweis)),
+        einreichungen = emptyList(),
+        bescheide = listOf(Bescheid(1, Kasse.DAK, LocalDate.of(2026, 4, 1), null, null, bescheidHinweis)),
+        positionen = emptyList(), beitraege = emptyList(), einstellungen = emptyMap(),
+    )
+
+    @Test fun `SR-df9a13c7cafd Kriterium 3 Hinweise werden exportiert und wiederhergestellt`() {
+        val s = sicherung("Rückfrage \"ä\"\nZeile 2", "Bescheid prüfen")
+        val zurueck = SicherungJson.ausJson(SicherungJson.zuJson(s))
+        assertEquals("Rückfrage \"ä\"\nZeile 2", zurueck.rechnungen.single().hinweis)
+        assertEquals("Bescheid prüfen", zurueck.bescheide.single().hinweis)
+        assertEquals(s, zurueck)
+    }
+
+    @Test fun `SR-df9a13c7cafd Kriterium 3 fehlender Hinweis bleibt null`() {
+        val zurueck = SicherungJson.ausJson(SicherungJson.zuJson(sicherung(null, null)))
+        assertNull(zurueck.rechnungen.single().hinweis)
+        assertNull(zurueck.bescheide.single().hinweis)
+    }
+
+    @Test fun `SR-df9a13c7cafd Kriterium 4 alte Sicherung ohne Hinweisfeld bleibt lesbar`() {
+        val alt = org.json.JSONObject(SicherungJson.zuJson(sicherung("x", "y"))).also { o ->
+            o.getJSONArray("rechnungen").getJSONObject(0).remove("hinweis")
+            o.getJSONArray("bescheide").getJSONObject(0).remove("hinweis")
+        }.toString()
+        val gelesen = SicherungJson.ausJson(alt)
+        assertNull(gelesen.rechnungen.single().hinweis)
+        assertNull(gelesen.bescheide.single().hinweis)
+        assertEquals("Praxis", gelesen.rechnungen.single().praxis)
+    }
+}

@@ -14,8 +14,8 @@ android {
         applicationId = "de.belegblitz"
         minSdk = 30
         targetSdk = 36
-        versionCode = 4
-        versionName = "2.1.0"
+        versionCode = 5
+        versionName = "2.2.0"
     }
 
     // Signaturschlüssel liegt außerhalb von Git in signing/keystore.properties

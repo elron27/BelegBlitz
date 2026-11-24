@@ -12,6 +12,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import de.belegblitz.ui.detail.BescheidAnsichtScreen
+import de.belegblitz.ui.detail.BescheidBearbeitenScreen
+import de.belegblitz.ui.detail.RechnungBearbeitenScreen
 import de.belegblitz.ui.detail.InvoiceDetailScreen
 import de.belegblitz.ui.erfassung.BelegArt
 import de.belegblitz.ui.erfassung.BescheidPruefenScreen
@@ -44,6 +46,10 @@ object Routes {
     const val BESCHEID = "bescheid"
     const val DETAIL = "rechnung/{id}"
     const val BESCHEIDE = "bescheide"
+
+    /** Issue #16: Bearbeiten-Bildschirme. */
+    const val RECHNUNG_BEARBEITEN = "rechnung/{id}/bearbeiten"
+    const val BESCHEID_BEARBEITEN = "bescheid/{id}/bearbeiten"
 
     /** SR-70a2f4475fe0: Bescheid-Ansicht. */
     const val BESCHEID_ANSICHT = "bescheid/{id}"
@@ -124,7 +130,16 @@ fun AppNavigation(container: AppContainer) {
             BescheidAnsichtScreen(
                 container, it.arguments?.getLong("id") ?: 0L,
                 onBack = { nav.popBackStack() }, onRechnung = { id -> nav.navigate("rechnung/$id") },
+                onBearbeiten = { nav.navigate("bescheid/$it/bearbeiten") },
+                // Issue #16: nach dem Löschen zurück zur Bescheid-Liste
+                onGeloescht = { if (!nav.popBackStack(Routes.BESCHEIDE, false)) nav.popBackStack() },
             )
+        }
+        composable(Routes.BESCHEID_BEARBEITEN, arguments = listOf(navArgument("id") { type = NavType.LongType })) {
+            BescheidBearbeitenScreen(container, it.arguments?.getLong("id") ?: 0L, onFertig = { nav.popBackStack() })
+        }
+        composable(Routes.RECHNUNG_BEARBEITEN, arguments = listOf(navArgument("id") { type = NavType.LongType })) {
+            RechnungBearbeitenScreen(container, it.arguments?.getLong("id") ?: 0L, onFertig = { nav.popBackStack() })
         }
         composable(Routes.ERFASSUNG) {
             ErfassungScreen(
@@ -154,7 +169,12 @@ fun AppNavigation(container: AppContainer) {
             )
         }
         composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) {
-            InvoiceDetailScreen(container, it.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
+            InvoiceDetailScreen(
+                container, it.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() },
+                onBearbeiten = { id -> nav.navigate("rechnung/$id/bearbeiten") },
+                // Issue #16: nach dem Löschen zurück zur Rechnungsliste
+                onGeloescht = { nav.popBackStack(Routes.LISTE, false) },
+            )
         }
         composable(Routes.UEBERSICHT) {
             UebersichtScreen(

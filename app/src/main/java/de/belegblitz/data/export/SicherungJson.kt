@@ -24,6 +24,7 @@ object SicherungJson {
                 .put("fachrichtung", it.fachrichtung).put("rechnungsdatum", it.rechnungsdatum.toString())
                 .put("betragCent", it.betragCent).put("titel", it.titel).put("pdfPfad", it.pdfPfad ?: JSONObject.NULL)
                 .put("ocrText", it.ocrText ?: JSONObject.NULL).put("erstellt", it.erstellt)
+                .put("hinweis", it.hinweis ?: JSONObject.NULL)
         })
         put("einreichungen", arr(s.einreichungen) {
             JSONObject().put("id", it.id).put("rechnungId", it.rechnungId).put("kasse", it.kasse.name)
@@ -35,6 +36,7 @@ object SicherungJson {
         put("bescheide", arr(s.bescheide) {
             JSONObject().put("id", it.id).put("kasse", it.kasse.name).put("datum", it.datum.toString())
                 .put("dokumentPfad", it.dokumentPfad ?: JSONObject.NULL).put("ocrText", it.ocrText ?: JSONObject.NULL)
+                .put("hinweis", it.hinweis ?: JSONObject.NULL)
         })
         put("positionen", arr(s.positionen) {
             JSONObject().put("id", it.id).put("bescheidId", it.bescheidId).put("rechnungId", it.rechnungId)
@@ -59,6 +61,7 @@ object SicherungJson {
                     it.getLong("id"), it.getLong("personId"), it.getString("praxis"), it.getString("fachrichtung"),
                     LocalDate.parse(it.getString("rechnungsdatum")), it.getLong("betragCent"), it.getString("titel"),
                     str(it, "pdfPfad"), str(it, "ocrText"), it.getLong("erstellt"),
+                    str(it, "hinweis"), // fehlt in älteren Sicherungen -> null
                 )
             },
             einreichungen = list(o, "einreichungen") {
@@ -72,7 +75,7 @@ object SicherungJson {
             bescheide = list(o, "bescheide") {
                 Bescheid(
                     it.getLong("id"), Kasse.valueOf(it.getString("kasse")), LocalDate.parse(it.getString("datum")),
-                    str(it, "dokumentPfad"), str(it, "ocrText"),
+                    str(it, "dokumentPfad"), str(it, "ocrText"), str(it, "hinweis"),
                 )
             },
             positionen = list(o, "positionen") {

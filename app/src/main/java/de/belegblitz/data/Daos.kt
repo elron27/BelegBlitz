@@ -35,6 +35,17 @@ interface RechnungDao {
 
     @Insert
     suspend fun einfuegen(rechnung: Rechnung): Long
+
+    /** Issue #16: Rechnung bearbeiten bzw. löschen (Einreichungen und Positionen entfallen per Kaskade). */
+    @Update
+    suspend fun aktualisieren(rechnung: Rechnung)
+
+    @Delete
+    suspend fun loeschen(rechnung: Rechnung)
+
+    /** Issue #17: Hinweis setzen; null entfernt ihn. */
+    @Query("UPDATE Rechnung SET hinweis = :hinweis WHERE id = :id")
+    suspend fun hinweisSetzen(id: Long, hinweis: String?)
 }
 
 /** SR-7d1f8913431f: Einreichungen je Rechnung und Kasse. */
@@ -54,6 +65,10 @@ interface EinreichungDao {
     @Query("SELECT * FROM Einreichung WHERE rechnungId = :rechnungId AND kasse = :kasse LIMIT 1")
     suspend fun finde(rechnungId: Long, kasse: de.belegblitz.domain.Kasse): Einreichung?
 
+    /** Issue #16: alle Einreichungen einer Rechnung (einmalig). */
+    @Query("SELECT * FROM Einreichung WHERE rechnungId = :rechnungId")
+    suspend fun jeRechnungEinmal(rechnungId: Long): List<Einreichung>
+
     @Query("SELECT * FROM Einreichung WHERE id = :id")
     suspend fun findeId(id: Long): Einreichung?
 
@@ -70,8 +85,31 @@ interface BescheidDao {
     @Insert
     suspend fun einfuegen(bescheid: Bescheid): Long
 
+    /** Issue #17: Hinweis setzen; null entfernt ihn. */
+    @Query("UPDATE Bescheid SET hinweis = :hinweis WHERE id = :id")
+    suspend fun hinweisSetzen(id: Long, hinweis: String?)
+
     @Insert
     suspend fun positionEinfuegen(position: BescheidPosition): Long
+
+    /** Issue #16: Bescheid bearbeiten bzw. löschen. */
+    @Update
+    suspend fun aktualisieren(bescheid: Bescheid)
+
+    @Delete
+    suspend fun loeschen(bescheid: Bescheid)
+
+    @Update
+    suspend fun positionAktualisieren(position: BescheidPosition)
+
+    @Query("DELETE FROM BescheidPosition WHERE id IN (:ids)")
+    suspend fun positionenLoeschen(ids: List<Long>)
+
+    @Query("SELECT * FROM BescheidPosition WHERE bescheidId = :bescheidId ORDER BY id")
+    suspend fun positionenJeBescheidEinmal(bescheidId: Long): List<BescheidPosition>
+
+    @Query("SELECT * FROM Bescheid WHERE id = :id")
+    suspend fun findeEinmal(id: Long): Bescheid?
 
     @Query("SELECT * FROM BescheidPosition WHERE einreichungId = :einreichungId")
     suspend fun positionen(einreichungId: Long): List<BescheidPosition>

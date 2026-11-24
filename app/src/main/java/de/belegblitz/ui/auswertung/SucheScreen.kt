@@ -57,11 +57,11 @@ fun SucheScreen(container: AppContainer, onReiter: (Reiter) -> Unit, onSettings:
     val treffer by remember {
         derivedStateOf {
             val dokumente = rechnungen.map {
-                SuchDokument(SuchDokument.Art.RECHNUNG, it.id, it.titel, it.ocrText, it.id)
+                SuchDokument(SuchDokument.Art.RECHNUNG, it.id, it.titel, it.ocrText, it.id, it.hinweis)
             } + bescheide.map { b ->
                 SuchDokument(
                     SuchDokument.Art.BESCHEID, b.id, "${b.kasse.name} ${b.datum.format(RechnungEingabe.DatumFormat)}",
-                    b.ocrText, positionen.firstOrNull { it.bescheidId == b.id }?.rechnungId,
+                    b.ocrText, positionen.firstOrNull { it.bescheidId == b.id }?.rechnungId, b.hinweis,
                 )
             }
             Volltextsuche.suchen(dokumente, anfrage)

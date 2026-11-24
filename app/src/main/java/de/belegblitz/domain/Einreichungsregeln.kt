@@ -5,6 +5,9 @@ import java.time.LocalDate
 /** Erstattungsstand einer Einreichung nach Auswertung der Bescheid-Positionen. */
 data class Erstattungsstand(val erstattetCent: Long, val status: EinreichungStatus)
 
+/** Issue #16: neu berechneter Zustand einer Einreichung (Erstattung null = noch nichts erstattet). */
+data class Einreichungsstand(val erstattetCent: Long?, val status: EinreichungStatus)
+
 /** Reine Regeln rund um Einreichungen (ohne Room/Android). */
 object Einreichungsregeln {
 
@@ -47,6 +50,30 @@ object Einreichungsregeln {
      */
     fun vkbRestbetrag(dakStatus: EinreichungStatus, dakEingereichtCent: Long, dakErstattetCent: Long?): Long? =
         if (vkbAnbieten(dakStatus)) (dakEingereichtCent - (dakErstattetCent ?: 0L)).coerceAtLeast(0L) else null
+
+    /**
+     * Issue #16: Neuberechnung einer Einreichung aus ihren Positionen (nach Betragsänderung, Bearbeiten oder Löschen
+     * eines Bescheids).
+     * - Es bleiben Positionen: Erstattung = Summe, Status daraus (wie [stand]).
+     * - Keine Position mehr, aber gelöschte, deren Summe der Erstattung entspricht: Rückfall auf Eingereicht
+     *   (Einreichungsdatum gesetzt) bzw. Erfasst, Erstattung null.
+     * - Sonst war die Erstattung von Hand eingetragen und bleibt; der Status folgt nur dem neuen Betrag.
+     * @param verbleibendCent Beträge der noch vorhandenen Positionen (neue Werte)
+     * @param entferntCent Beträge der entfernten Positionen (Werte vor dem Entfernen)
+     */
+    fun neuBerechnen(
+        betragCent: Long, einreichungsdatum: LocalDate?, status: EinreichungStatus, erstattetCent: Long?,
+        verbleibendCent: List<Long>, entferntCent: List<Long> = emptyList(),
+    ): Einreichungsstand {
+        if (verbleibendCent.isNotEmpty()) {
+            val s = stand(betragCent, verbleibendCent)
+            return Einreichungsstand(s.erstattetCent, s.status)
+        }
+        if (entferntCent.isNotEmpty() && erstattetCent == entferntCent.sum()) {
+            return Einreichungsstand(null, if (einreichungsdatum != null) EinreichungStatus.EINGEREICHT else EinreichungStatus.ERFASST)
+        }
+        return Einreichungsstand(erstattetCent, statusNachBetragsaenderung(status, betragCent, erstattetCent))
+    }
 
     /** SR-a6fc7a6cdbe1: neuen Bescheid-Hinweis an den vorhandenen anhängen, ohne Doppelungen. */
     fun hinweisZusammenfuehren(alt: String?, neu: String?): String? {
