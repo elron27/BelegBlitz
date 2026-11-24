@@ -138,7 +138,7 @@ class SicherungHinweisTest {
         positionen = emptyList(), beitraege = emptyList(), einstellungen = emptyMap(),
     )
 
-    @Test fun `Issue 17 Hinweise werden exportiert und wiederhergestellt`() {
+    @Test fun `SR-df9a13c7cafd Kriterium 3 Hinweise werden exportiert und wiederhergestellt`() {
         val s = sicherung("Rückfrage \"ä\"\nZeile 2", "Bescheid prüfen")
         val zurueck = SicherungJson.ausJson(SicherungJson.zuJson(s))
         assertEquals("Rückfrage \"ä\"\nZeile 2", zurueck.rechnungen.single().hinweis)
@@ -146,13 +146,13 @@ class SicherungHinweisTest {
         assertEquals(s, zurueck)
     }
 
-    @Test fun `Issue 17 fehlender Hinweis bleibt null`() {
+    @Test fun `SR-df9a13c7cafd Kriterium 3 fehlender Hinweis bleibt null`() {
         val zurueck = SicherungJson.ausJson(SicherungJson.zuJson(sicherung(null, null)))
         assertNull(zurueck.rechnungen.single().hinweis)
         assertNull(zurueck.bescheide.single().hinweis)
     }
 
-    @Test fun `Issue 17 alte Sicherung ohne Hinweisfeld bleibt lesbar`() {
+    @Test fun `SR-df9a13c7cafd Kriterium 4 alte Sicherung ohne Hinweisfeld bleibt lesbar`() {
         val alt = org.json.JSONObject(SicherungJson.zuJson(sicherung("x", "y"))).also { o ->
             o.getJSONArray("rechnungen").getJSONObject(0).remove("hinweis")
             o.getJSONArray("bescheide").getJSONObject(0).remove("hinweis")
