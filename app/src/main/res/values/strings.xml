@@ -183,4 +183,8 @@
     <string name="empty_search_title">Nothing found</string>
     <string name="label_progress">%1$d%% of submitted amount refunded</string>
     <string name="invoice_meta">%1$s · %2$s</string>
+    <string name="remark_heading">Note</string>
+    <string name="remark_placeholder">No note yet. Tap to add one.</string>
+    <string name="remark_edit">Edit note</string>
+    <string name="remark_label">Note (leave empty to remove)</string>
 </resources>

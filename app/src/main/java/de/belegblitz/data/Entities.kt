@@ -30,6 +30,8 @@ data class Rechnung(
     val pdfPfad: String?,
     val ocrText: String?,
     val erstellt: Long,
+    /** Issue #17: freier Hinweis zur Rechnung (null = keiner). */
+    val hinweis: String? = null,
 )
 
 /** SR-7d1f8913431f: Einreichung je Rechnung und Kasse. */
@@ -56,6 +58,8 @@ data class Bescheid(
     val datum: LocalDate,
     val dokumentPfad: String?,
     val ocrText: String?,
+    /** Issue #17: freier Hinweis zum Bescheid (null = keiner). */
+    val hinweis: String? = null,
 )
 
 /** Zuordnung eines Bescheids zu Rechnung/Einreichung mit Betrag je Position. */

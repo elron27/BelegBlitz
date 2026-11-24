@@ -1,5 +1,6 @@
 package de.belegblitz.data
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
@@ -13,8 +14,9 @@ class Converters {
 
 @Database(
     entities = [Person::class, Rechnung::class, Einreichung::class, Bescheid::class, BescheidPosition::class, VkbBeitrag::class],
-    version = 1,
+    version = 2,
     exportSchema = true,
+    autoMigrations = [AutoMigration(from = 1, to = 2)], // Issue #17: Spalte hinweis in Rechnung und Bescheid
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {

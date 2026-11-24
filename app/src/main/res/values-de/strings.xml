@@ -183,4 +183,8 @@
     <string name="empty_search_title">Nichts gefunden</string>
     <string name="label_progress">%1$d %% des eingereichten Betrags erstattet</string>
     <string name="invoice_meta">%1$s · %2$s</string>
+    <string name="remark_heading">Hinweis</string>
+    <string name="remark_placeholder">Noch kein Hinweis. Zum Hinzufügen tippen.</string>
+    <string name="remark_edit">Hinweis bearbeiten</string>
+    <string name="remark_label">Hinweis (leer lassen zum Entfernen)</string>
 </resources>

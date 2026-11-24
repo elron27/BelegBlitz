@@ -10,6 +10,8 @@ data class SuchDokument(
     val text: String?,
     /** Rechnung, die beim Antippen geöffnet wird (bei Bescheiden die zugeordnete). */
     val rechnungId: Long?,
+    /** Issue #17: eigener Hinweis, wird mit durchsucht. */
+    val hinweis: String? = null,
 ) {
     enum class Art { RECHNUNG, BESCHEID }
 }
@@ -64,14 +66,14 @@ object Volltextsuche {
     /** Alle Begriffe müssen im Text oder Titel vorkommen. */
     fun trifft(dokument: SuchDokument, begriffe: List<String>): Boolean {
         if (begriffe.isEmpty()) return false
-        val heu = normalisieren(dokument.titel + "\n" + dokument.text.orEmpty())
+        val heu = normalisieren(listOfNotNull(dokument.titel, dokument.text, dokument.hinweis).joinToString("\n"))
         return begriffe.all { heu.contains(it) }
     }
 
     fun suchen(dokumente: List<SuchDokument>, anfrage: String, auszugLaenge: Int = 120): List<SuchTreffer> {
         val begriffe = suchbegriffe(anfrage)
         return dokumente.filter { trifft(it, begriffe) }.map { d ->
-            val text = d.text.orEmpty().replace(Regex("\\s+"), " ")
+            val text = listOfNotNull(d.text, d.hinweis).joinToString("\n").replace(Regex("\\s+"), " ")
             val bereiche = bereiche(text, begriffe)
             val start = ((bereiche.firstOrNull()?.first ?: 0) - 30).coerceAtLeast(0)
             val ende = (start + auszugLaenge).coerceAtMost(text.length)

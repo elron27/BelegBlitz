@@ -35,7 +35,9 @@ import de.belegblitz.data.PdfWerkzeug
 import de.belegblitz.domain.Geld
 import de.belegblitz.domain.RechnungEingabe
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import de.belegblitz.domain.Hinweis
 
 /** SR-8d2f40b64013: Detailansicht zeigt die PDF-Seiten als Bilder (PdfRenderer). */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,6 +85,14 @@ fun InvoiceDetailScreen(container: AppContainer, id: Long, onBack: () -> Unit) {
                 }
             }
             rechnung?.let { r -> item { EinreichungenAbschnitt(container, r) } }
+            // Issue #17: Hinweis zur Rechnung
+            rechnung?.let { r ->
+                item(key = "hinweis") {
+                    HinweisAbschnitt(r.hinweis) { neu ->
+                        container.scope.launch { container.db.rechnungDao().hinweisSetzen(r.id, Hinweis.bereinigen(neu)) }
+                    }
+                }
+            }
             val bilder = seiten
             if (bilder != null && bilder.isEmpty()) item { Text(stringResource(R.string.pdf_error)) }
             itemsIndexed(bilder.orEmpty()) { _, bmp ->

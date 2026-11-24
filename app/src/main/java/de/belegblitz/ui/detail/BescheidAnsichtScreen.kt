@@ -37,7 +37,9 @@ import de.belegblitz.domain.RechnungEingabe
 import de.belegblitz.domain.Titel
 import de.belegblitz.ui.ZurueckKnopf
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import de.belegblitz.domain.Hinweis
 
 /**
  * SR-70a2f4475fe0: Bescheid-Ansicht mit Kasse, Datum, zugeordneten Rechnungen samt Beträgen (Klick öffnet die Rechnung),
@@ -83,6 +85,12 @@ fun BescheidAnsichtScreen(container: AppContainer, id: Long, onBack: () -> Unit,
             if (kopf == null) {
                 item { Text(stringResource(R.string.notice_not_found)) }
                 return@LazyColumn
+            }
+            // Issue #17: Hinweis zum Bescheid
+            item(key = "hinweis") {
+                HinweisAbschnitt(bescheid?.hinweis) { neu ->
+                    container.scope.launch { db.bescheidDao().hinweisSetzen(id, Hinweis.bereinigen(neu)) }
+                }
             }
             item { Text(stringResource(R.string.notice_invoices_heading), style = MaterialTheme.typography.titleSmall) }
             if (zeilen.isEmpty()) item { Text(stringResource(R.string.notice_no_invoices), style = MaterialTheme.typography.bodyMedium) }

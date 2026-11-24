@@ -35,6 +35,10 @@ interface RechnungDao {
 
     @Insert
     suspend fun einfuegen(rechnung: Rechnung): Long
+
+    /** Issue #17: Hinweis setzen; null entfernt ihn. */
+    @Query("UPDATE Rechnung SET hinweis = :hinweis WHERE id = :id")
+    suspend fun hinweisSetzen(id: Long, hinweis: String?)
 }
 
 /** SR-7d1f8913431f: Einreichungen je Rechnung und Kasse. */
@@ -69,6 +73,10 @@ interface EinreichungDao {
 interface BescheidDao {
     @Insert
     suspend fun einfuegen(bescheid: Bescheid): Long
+
+    /** Issue #17: Hinweis setzen; null entfernt ihn. */
+    @Query("UPDATE Bescheid SET hinweis = :hinweis WHERE id = :id")
+    suspend fun hinweisSetzen(id: Long, hinweis: String?)
 
     @Insert
     suspend fun positionEinfuegen(position: BescheidPosition): Long
