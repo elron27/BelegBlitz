@@ -187,4 +187,15 @@
     <string name="remark_placeholder">No note yet. Tap to add one.</string>
     <string name="remark_edit">Edit note</string>
     <string name="remark_label">Note (leave empty to remove)</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="delete_confirm">Delete</string>
+    <string name="delete_invoice_title">Delete invoice?</string>
+    <string name="delete_invoice_message">The invoice with its PDF, submissions and assignments will be deleted. This cannot be undone.</string>
+    <string name="delete_notice_title">Delete notice?</string>
+    <string name="delete_notice_message">The notice with its PDF will be deleted and the refunds of its invoices recalculated. This cannot be undone.</string>
+    <string name="edit_invoice_title">Edit invoice</string>
+    <string name="edit_notice_title">Edit notice</string>
+    <string name="edit_notice_invalid">Please enter a valid date and valid amounts.</string>
+    <string name="edit_notice_positions">Assigned invoices</string>
 </resources>

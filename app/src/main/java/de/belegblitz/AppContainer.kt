@@ -32,7 +32,7 @@ class AppContainer(private val context: Context) {
     var erkenner: RechnungErkenner = OcrRechnungErkenner(textLeser)
 
     /** SR-7d1f8913431f, SR-3273b2e9382d: Einreichungen und Bescheide schreiben. */
-    val speicher = EinreichungSpeicher(db)
+    val speicher = EinreichungSpeicher(db) { name -> pdfDatei(name).delete() }
 
     /** Stufe 2: Sperre, Wartezeit und Update-Ordner. */
     val einstellungen = Einstellungen(context)

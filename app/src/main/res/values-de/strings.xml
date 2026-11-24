@@ -187,4 +187,15 @@
     <string name="remark_placeholder">Noch kein Hinweis. Zum Hinzufügen tippen.</string>
     <string name="remark_edit">Hinweis bearbeiten</string>
     <string name="remark_label">Hinweis (leer lassen zum Entfernen)</string>
+    <string name="action_edit">Bearbeiten</string>
+    <string name="action_delete">Löschen</string>
+    <string name="delete_confirm">Löschen</string>
+    <string name="delete_invoice_title">Rechnung löschen?</string>
+    <string name="delete_invoice_message">Die Rechnung mit PDF, Einreichungen und Zuordnungen wird gelöscht. Das kann nicht rückgängig gemacht werden.</string>
+    <string name="delete_notice_title">Bescheid löschen?</string>
+    <string name="delete_notice_message">Der Bescheid mit PDF wird gelöscht, die Erstattungen seiner Rechnungen werden neu berechnet. Das kann nicht rückgängig gemacht werden.</string>
+    <string name="edit_invoice_title">Rechnung bearbeiten</string>
+    <string name="edit_notice_title">Bescheid bearbeiten</string>
+    <string name="edit_notice_invalid">Bitte ein gültiges Datum und gültige Beträge eingeben.</string>
+    <string name="edit_notice_positions">Zugeordnete Rechnungen</string>
 </resources>

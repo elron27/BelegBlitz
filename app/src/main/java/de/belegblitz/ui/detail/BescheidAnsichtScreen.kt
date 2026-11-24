@@ -19,6 +19,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -47,7 +49,10 @@ import de.belegblitz.domain.Hinweis
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BescheidAnsichtScreen(container: AppContainer, id: Long, onBack: () -> Unit, onRechnung: (Long) -> Unit) {
+fun BescheidAnsichtScreen(
+    container: AppContainer, id: Long, onBack: () -> Unit, onRechnung: (Long) -> Unit,
+    onBearbeiten: (Long) -> Unit = {}, onGeloescht: () -> Unit = {},
+) {
     val db = container.db
     val bescheid by remember(id) { db.bescheidDao().finde(id) }.collectAsStateWithLifecycle(null)
     val positionen by remember(id) { db.bescheidDao().positionenJeBescheid(id) }.collectAsStateWithLifecycle(emptyList())
@@ -68,6 +73,21 @@ fun BescheidAnsichtScreen(container: AppContainer, id: Long, onBack: () -> Unit,
         }
     }
     val context = LocalContext.current
+    var loeschenFrage by remember { mutableStateOf(false) }
+    // Issue #16: Löschen mit Rückfrage, danach zurück zur Liste
+    if (loeschenFrage) {
+        LoeschenDialog(
+            R.string.delete_notice_title, R.string.delete_notice_message,
+            onBestaetigt = {
+                loeschenFrage = false
+                container.scope.launch {
+                    container.speicher.bescheidLoeschen(id)
+                    withContext(Dispatchers.Main) { onGeloescht() }
+                }
+            },
+            onAbbruch = { loeschenFrage = false },
+        )
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -75,6 +95,9 @@ fun BescheidAnsichtScreen(container: AppContainer, id: Long, onBack: () -> Unit,
                     Text(kopf?.let { stringResource(R.string.notice_heading, it.kasse.name, it.datum.format(RechnungEingabe.DatumFormat)) }.orEmpty())
                 },
                 navigationIcon = { ZurueckKnopf(onClick = onBack) },
+                actions = {
+                    if (kopf != null) BearbeitenLoeschenAktionen({ onBearbeiten(id) }, { loeschenFrage = true })
+                },
             )
         },
     ) { padding ->
